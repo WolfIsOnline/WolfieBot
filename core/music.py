@@ -7,7 +7,7 @@ import time
 import asyncio
 from discord.ext import commands
 from discord.commands import slash_command
-from utils import Utils
+from classes.utils import Utils
 
 
 RESPONSE_CONNECTED = "I'm in a voice channel"
@@ -21,13 +21,19 @@ class Music(commands.Cog, wavelink.Player):
         self.requester = self.bot
 
     async def display_playing(self, ctx):
-        await asyncio.sleep(.5) # if you don't put the app to sleep it will return the length of the source instead of the current position, this seems to be the min time to sleep
+
+        # If you get the vc.position to quickly 
+        # it will display the length of the source
+        # .5 seconds seems to be the minium amount of time
+        # for the vc.position to get the correct position
+        await asyncio.sleep(.5) 
+
         vc = ctx.voice_client
         if vc:
             if vc.is_playing():
                 embed = discord.Embed(title=f"Now Playing: {vc.source.title}", url=vc.source.uri, color=0x02e7e7)
                 embed.set_author(name=f"Uploader: {vc.source.author}")
-                embed.set_footer(text=f"Requested By {self.requester}", icon_url=self.requester.avatar.url)
+                embed.set_footer(text=f"Requested By {self.requester}", icon_url=self.requester.display_avatar)
                 embed.set_thumbnail(url=vc.source.thumb)
 
                 total = time.strftime("%H:%M:%S", time.gmtime(vc.source.length))

@@ -10,26 +10,29 @@ from rich.progress import track
 from core.music import * 
 from discord.ext import commands
 
-load_dotenv(find_dotenv())
-TOKEN = os.environ.get("TOKEN")
-
 _Logging()
 log = logging.getLogger("rich")
 
-bot = commands.Bot(command_prefix=commands.when_mentioned, debug_guilds=["1021249050445611009", "851644348281258035"], intents=discord.Intents.all())
+
+
+intents = discord.Intents.default()
+bot = commands.Bot(debug_guilds=["1021249050445611009", "851644348281258035"], intents=discord.Intents.all())
+load_dotenv(find_dotenv())
+TOKEN = os.environ.get("TOKEN")
+      
 for filename in track(os.listdir('./core'), description="loading core"):
     if filename.endswith('.py'):
         bot.load_extension(f'core.{filename[:-3]}')
 
+@bot.slash_command()
+async def reload(ctx, extension):
+    bot.reload_extension(f"core.{extension}")
+    embed = discord.Embed(title='Reload', description=f'{extension} successfully reloaded', color=0xff00c8)
+    await ctx.respond(embed=embed)
+
 async def connect_nodes():
     await bot.wait_until_ready()
     await wavelink.NodePool.create_node(bot=bot, host='0.0.0.0', port=2333, password="youshallnotpass")
-
-@bot.event
-async def on_guild_join(guild):
-    db = Guild_DataBase()
-    db.add_guild(guild.id)
-
 
 @bot.event
 async def on_ready():

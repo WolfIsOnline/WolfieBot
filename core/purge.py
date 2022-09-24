@@ -13,6 +13,5 @@ class Purge(commands.Cog):
         await ctx.channel.purge(limit=int(amount))
         await ctx.respond(str(amount) + " messages have been deleted!", delete_after=3)
 
-
 def setup(bot):
     bot.add_cog(Purge(bot))

@@ -7,6 +7,12 @@ import time
 import asyncio
 from discord.ext import commands
 from discord.commands import slash_command
+from utils import Utils
+
+
+RESPONSE_CONNECTED = "I'm in a voice channel"
+RESPONSE_DISCONNECTED = "I'm not in a voice channel"
+bot_util = Utils()
 
 class Music(commands.Cog, wavelink.Player):
     
@@ -40,7 +46,7 @@ class Music(commands.Cog, wavelink.Player):
                 await ctx.respond("I'm not playing anything")
 
         else:
-            await ctx.respond("I'm not in a voice channel")
+            await ctx.respond(RESPONSE_DISCONNECTED)
 
     @slash_command(description="Plays a song.")
     async def play(self, ctx, search: str):
@@ -74,8 +80,21 @@ class Music(commands.Cog, wavelink.Player):
             else:
                 await ctx.respond("I'm not playing anything")
         else:
-            await ctx.respond("I'm not in a voice channel")
+            await ctx.respond(RESPONSE_DISCONNECTED)
             return
+
+    @slash_command(description="Disconnects bot from voice channel")
+    async def disconnect(self, ctx):
+        if not await bot_util.is_connected(ctx):
+            return await ctx.respond(RESPONSE_DISCONNECTED)
+        vc = ctx.voice_client
+        await vc.disconnect()
+        await ctx.respond("Bye Bye :wave:")
+
+    @slash_command(description="Connects bot to voice channel")
+    async def connect(self, ctx):
+        await ctx.author.voice.channel.connect(cls=wavelink.Player)
+        await ctx.respond("I'm here! :smile:")
 
 def setup(bot):
     bot.add_cog(Music(bot))

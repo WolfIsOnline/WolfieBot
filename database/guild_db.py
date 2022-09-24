@@ -1,9 +1,6 @@
 import os
 import logging
-import sys
 
-from enum import unique
-from pydoc import doc
 from dotenv import load_dotenv, find_dotenv
 from pymongo import ASCENDING, MongoClient
 from pymongo.errors import CollectionInvalid
@@ -26,12 +23,7 @@ class Guild_DataBase:
     
     def update_guild_key(self, guild_id, id, value):
         document = self.client["guilds"][str(guild_id)]
-        document.find_one_and_update(
-            {"_id": id},
-            {"$set": 
-                {"value": value}
-            },upsert=True
-            )
+        document.find_one_and_update({"_id": id},{"$set": {"value": value}},upsert=True)
 
     def add_guild_key(self, guild_id, id, value):
         try:
@@ -48,12 +40,3 @@ class Guild_DataBase:
         for x in results:
             value = x["value"]
         return value
-
-guild = Guild_DataBase()
-#guild.add_guild_key("1021249050445611009", "testing3", "this is another test")
-#guild.add_data_to_guild("1021249050445611009", "testing", "49230842094820840 (2)")
-#guild.get_data_from_guild("1021249050445611009", "modlog_channel")
-#data = guild.get_guild_key("1021249050445611009", "testing")
-#print(data)
-#guild.get_data_from_guild("1021249050445611009", "")
-guild.update_guild_key("1021249050445611009", "testing", "i changed")

@@ -20,8 +20,8 @@ class Dev(commands.Cog):
     @slash_command(description="reloads cog")
     async def reload(self, ctx, cog):
         self.bot.reload_extension(f"core.{cog}")
-
         embed = discord.Embed(title="Reload", description=f"{cog} successfully reloaded", color=utils.DEFAULT_COLOR)
         await ctx.respond(embed=embed)
+        
 def setup(bot):
     bot.add_cog(Dev(bot))

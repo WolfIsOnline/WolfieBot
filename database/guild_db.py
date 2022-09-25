@@ -5,6 +5,8 @@ from dotenv import load_dotenv, find_dotenv
 from pymongo import ASCENDING, MongoClient
 from pymongo.errors import CollectionInvalid
 from pymongo.errors import DuplicateKeyError
+from requests import delete
+
 
 log = logging.getLogger("rich")
 
@@ -23,19 +25,26 @@ class Guild_DataBase:
     
     def update_guild_key(self, guild_id, id, value):
         document = self.client["guilds"][str(guild_id)]
-        document.find_one_and_update({"_id": id},{"$set": {"value": value}},upsert=True)
+        document.find_one_and_update({"_id": str(id)},{"$set": {"value": str(value)}},upsert=True)
 
     def add_guild_key(self, guild_id, id, value):
         try:
             document = self.client["guilds"][str(guild_id)]
-            data = {"_id": id, "value": value}
+            data = {"_id": str(id), "value": str(value)}
             document.insert_one(data)
+            log.info(f"{id} has been added")
+
         except DuplicateKeyError:
             log.info(f"{id} is a duplicate")
 
+    def delete_guild_key(self, guild_id, id, value):
+        document = self.client["guilds"][str(guild_id)]
+        document.find_one_and_delete({"_id": id},{"value": value})
+        log.info(f"{id} has been deleted")
+
     def get_guild_key(self, guild_id, id):
         document = self.client["guilds"][str(guild_id)]
-        results = document.find({"_id":id})
+        results = document.find({"_id":str(id)})
         value = "None"
         for x in results:
             value = x["value"]

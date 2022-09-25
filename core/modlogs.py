@@ -21,6 +21,11 @@ class ModLogs(commands.Cog):
         db.update_guild_key(guild_id, "modlog_channel", channel_id)
         await ctx.respond("mod logs will now display in this channel")
 
+
+    @commands.Cog.listener()
+    async def on_member_ban(self, guild, user):
+        pass
+
     @commands.Cog.listener()
     async def on_message_delete(self, message):
         if message.author.bot:

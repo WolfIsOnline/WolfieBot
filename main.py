@@ -10,25 +10,15 @@ from rich.progress import track
 from core.music import * 
 from discord.ext import commands
 
-_Logging()
+log = _Logging()
 log = logging.getLogger("rich")
 
-
-
-intents = discord.Intents.default()
 bot = commands.Bot(debug_guilds=["1021249050445611009", "851644348281258035"], intents=discord.Intents.all())
-load_dotenv(find_dotenv())
-TOKEN = os.environ.get("TOKEN")
-      
-for filename in track(os.listdir('./core'), description="loading core"):
-    if filename.endswith('.py'):
-        bot.load_extension(f'core.{filename[:-3]}')
 
-@bot.slash_command()
-async def reload(ctx, extension):
-    bot.reload_extension(f"core.{extension}")
-    embed = discord.Embed(title='Reload', description=f'{extension} successfully reloaded', color=0xff00c8)
-    await ctx.respond(embed=embed)
+def load_all():
+    for filename in track(os.listdir('./core'), description="loading core"):
+        if filename.endswith('.py'):
+            bot.load_extension(f'core.{filename[:-3]}')
 
 async def connect_nodes():
     await bot.wait_until_ready()
@@ -47,4 +37,6 @@ async def on_ready():
 async def on_wavelink_node_ready(node: wavelink.Node):
     log.info(f"node {node.identifier} is ready on port {node._port}")
 
-bot.run(TOKEN)
+load_all()
+load_dotenv(find_dotenv())
+bot.run(os.environ.get("TOKEN"))

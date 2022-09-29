@@ -1,13 +1,18 @@
 from discord.ext import commands
 from discord.commands import slash_command
+from classes.utils import Utils
 
 class Purge(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.bot_utils = Utils()
 
     @slash_command(description="Deletes specified number of messages in channel.")
     async def purge(self, ctx, amount = 1):
+        if not await self.bot_utils.is_mod(ctx):
+            return
+        
         await ctx.channel.purge(limit=int(amount))
         await ctx.respond(str(amount) + " messages have been deleted!", delete_after=3)
 

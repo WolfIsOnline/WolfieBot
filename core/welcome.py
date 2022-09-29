@@ -1,6 +1,6 @@
 from discord import slash_command
 from discord.ext import commands
-from database.guild_db import Guild_DataBase
+from database.database import Guild_DataBase
 
 db = Guild_DataBase()
 

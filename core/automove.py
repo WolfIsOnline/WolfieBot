@@ -7,13 +7,18 @@ from discord.ext import commands
 from discord.commands import slash_command
 from database.database import Guild_DataBase
 
+
 log = logging.getLogger("rich")
 db = Guild_DataBase()
 
+#
 class AutoMove(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
  
+    async def test(self, ctx):
+        await ctx.respond("test2")
+
     async def check_empty(self, member, before_id):
         check_id = db.get_guild_key(member.guild.id, f"automove_{before_id}")
 
@@ -24,9 +29,8 @@ class AutoMove(commands.Cog):
         if len(channel.members) == 0:
             await channel.delete(reason="channel is empty")
             db.delete_guild_key(member.guild.id, f"automove_{before_id}", before_id)
-                
-    @slash_command(description="Sets autoroom ID")   
-    async def set_autoroom(self, ctx, id):
+                 
+    async def setautoroom(self, ctx, id):
         guild_id = ctx.guild.id
         db.update_guild_key(guild_id, "automove_source", id)
         await ctx.respond(f"automove source set as {id}")
@@ -52,12 +56,6 @@ class AutoMove(commands.Cog):
                     })
                 await member.move_to(channel)
                 db.add_guild_key(member.guild.id, f"automove_{channel.id}", channel.id)
-    
-            
-    
-
-        
-        
 
 def setup(bot):
     bot.add_cog(AutoMove(bot))

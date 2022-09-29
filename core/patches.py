@@ -4,17 +4,12 @@ from discord import slash_command
 from discord.ext import commands
 from rich import print
 from rich import pretty
+from classes.utils import Utils
 
 class Patches(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    @slash_command(description="Testing")
-    async def embed_getter(self, ctx):
-        message = await fetch_message(1024895333295214612)
-        print(message)
-        await ctx.respond("succcesss")
-
+        self.utils = Utils()
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -51,7 +46,7 @@ class Patches(commands.Cog):
             fields = data["fields"]
         except: fields = []
         
-        duplicate = discord.Embed(title=title, description=description, color=0x02e7e7)
+        duplicate = discord.Embed(title=title, description=description, color=self.utils.DEFAULT_COLOR)
         duplicate.set_author(name=author)
         duplicate.set_thumbnail(url=thumbnail)
         duplicate.set_image(url=image)

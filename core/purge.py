@@ -8,7 +8,6 @@ class Purge(commands.Cog):
         self.bot = bot
         self.bot_utils = Utils()
 
-    @slash_command(description="Deletes specified number of messages in channel.")
     async def purge(self, ctx, amount = 1):
         if not await self.bot_utils.is_mod(ctx):
             return

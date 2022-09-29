@@ -142,9 +142,7 @@ def test_prgram():
         print("5) Exit")
 
         option = input()
-        clear = lambda: os.system("clear")
-        clear()
-        user_id = "257646822925926410"
+        user_id = "902399559567806524"
 
         if option  == "1":
             db.add_transaction(user_id, "1000000","simulated transaction", "incoming", "member")

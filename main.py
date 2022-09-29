@@ -9,6 +9,7 @@ from dotenv import load_dotenv, find_dotenv
 from rich.progress import track
 from core.music import * 
 from discord.ext import commands, bridge
+from discord import SlashCommandGroup
 
 log = _Logging()
 log = logging.getLogger("rich")
@@ -20,13 +21,21 @@ def load_all():
     for filename in track(os.listdir('./core'), description="loading core"):
         if filename.endswith('.py'):
             bot.load_extension(f'core.{filename[:-3]}')
+@bot.event
+async def on_application_command_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown):
+        await ctx.respond(error)
+    elif isinstance(error, commands.NotOwner):
+        await ctx.respond(error)
+    else:
+        raise error
 
 @bot.event
 async def on_ready():
-    amount = 0
-    for count in bot.guilds:
-        amount += 1
-    log.info(f"Bot is currently in {amount} servers")
+    guilds = 0
+    for c in bot.guilds:
+        guilds += 1
+    log.info(f"Bot is currently in {guilds} servers")
     log.info(f"{bot.user} has connected to discord")
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="becoming sentient"))
 

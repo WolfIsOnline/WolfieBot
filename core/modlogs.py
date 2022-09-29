@@ -4,6 +4,7 @@ import pytz
 from doctest import debug_script
 from email import message
 from discord.ext import commands
+from discord import SlashCommandGroup
 from discord.commands import slash_command
 from database.database import Guild_DataBase
 
@@ -13,14 +14,12 @@ class ModLogs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @slash_command(description="Set modlog to current channel")
-    async def set_modlog(self, ctx):
+    async def setmodlog(self, ctx):
         db = Guild_DataBase()
         guild_id = ctx.guild.id
         channel_id = ctx.channel.id
         db.update_guild_key(guild_id, "modlog_channel", channel_id)
         await ctx.respond("mod logs will now display in this channel")
-
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild, user):
@@ -37,14 +36,6 @@ class ModLogs(commands.Cog):
         if before.author.bot:
             return
         await self.send_msglog(before, "Message was edited", 0x738adb, after.content)
-
-    @slash_command(description="test")
-    async def test_embed(self, ctx):
-        member = ctx.author
-        embed = discord.Embed(title="User Left", description=f"{member} has left the server", color=0xffffff)
-        embed.set_author(name=f"{member}", icon_url=member.display_avatar)
-        embed.set_footer(text=f"Account ID: {member.id}")
-        await self.bot.get_channel(ctx.channel.id).send(embed=embed)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):

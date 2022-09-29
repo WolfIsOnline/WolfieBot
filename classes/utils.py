@@ -14,7 +14,7 @@ class Utils:
         return False
 
     async def notify(self, ctx, notify_msg):
-        embed = discord.Embed(title=None, description=notify_msg, color=0x02e7e7)
+        embed = discord.Embed(title=None, description=notify_msg, color=self.DEFAULT_COLOR)
         await ctx.respond(embed=embed)
 
     async def is_owner(self, ctx):

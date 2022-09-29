@@ -1,24 +1,39 @@
 import wave
 import discord
 import wavelink
-from wavelink.ext import spotify
-from wavelink.ext.spotify import SpotifyTrack
+import logging
 import time
 import asyncio
+
+from wavelink.ext import spotify
+from wavelink.ext.spotify import SpotifyTrack
 from discord.ext import commands
 from discord.commands import slash_command
 from classes.utils import Utils
+from classes._logging import _Logging
 
 
 RESPONSE_CONNECTED = "I'm in a voice channel"
 RESPONSE_DISCONNECTED = "I'm not in a voice channel"
-bot_util = Utils()
+RESPOND_NOT_PLAYING = "I'm not playing anything"
+log = _Logging()
+log = logging.getLogger("rich")
 
 class Music(commands.Cog, wavelink.Player):
     
     def __init__(self, bot):
         self.bot = bot
         self.requester = self.bot
+        self.bot.loop.create_task(self.connect_nodes())
+        self.bot_util = Utils()
+
+    async def connect_nodes(self):
+        await self.bot.wait_until_ready()
+        await wavelink.NodePool.create_node(bot=self.bot, host='0.0.0.0', port=2333, password="youshallnotpass")
+
+    @commands.Cog.listener()
+    async def on_wavelink_node_ready(self, node: wavelink.Node):
+        log.info(f"node {node.identifier} is ready on port {node._port}")
 
     async def display_playing(self, ctx):
 
@@ -47,9 +62,9 @@ class Music(commands.Cog, wavelink.Player):
                     _type = "Video"
 
                 embed.add_field(name="Type: ", value=_type, inline=True)
-                await ctx.respond(embed=embed) 
+                await ctx.respond(embed=embed)
             else:
-                await ctx.respond("I'm not playing anything")
+                await self.bot_utils.notify(ctx, RESPOND_NOT_PLAYING)
 
         else:
             await ctx.respond(RESPONSE_DISCONNECTED)
@@ -84,14 +99,13 @@ class Music(commands.Cog, wavelink.Player):
                 await vc.stop()
                 await ctx.respond("Music stopped")
             else:
-                await ctx.respond("I'm not playing anything")
+                await self.bot_util.notify(ctx, RESPOND_NOT_PLAYING)
         else:
-            await ctx.respond(RESPONSE_DISCONNECTED)
-            return
+            await self.bot_util.notify(ctx, RESPOND_DISCONNECTED)
 
     @slash_command(description="Disconnects bot from voice channel")
     async def disconnect(self, ctx):
-        if not await bot_util.is_connected(ctx):
+        if not await self.bot_util.is_connected(ctx):
             return await ctx.respond(RESPONSE_DISCONNECTED)
         vc = ctx.voice_client
         await vc.disconnect()

@@ -5,7 +5,7 @@ from doctest import debug_script
 from email import message
 from discord.ext import commands
 from discord.commands import slash_command
-from database.guild_db import Guild_DataBase
+from database.database import Guild_DataBase
 
 
 

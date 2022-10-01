@@ -13,7 +13,11 @@ class General(commands.Cog):
     async def pfp(self, ctx, user: discord.User):
         avatar = discord.Embed(color=self.utils.DEFAULT_COLOR)
         avatar.set_image(url=user.display_avatar)
-        await ctx.respond(embed=avatar)
+        await ctx.respond(embed=avatar) 
+
+    @slash_command(description="Pong")
+    async def ping(self, ctx):
+        await ctx.respond("Pong")
 
 def setup(bot):
     bot.add_cog(General(bot))

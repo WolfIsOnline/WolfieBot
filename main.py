@@ -10,17 +10,17 @@ from rich.progress import track
 from core.music import * 
 from discord.ext import commands, bridge
 from discord import SlashCommandGroup
+from core.general import General
 
 log = _Logging()
 log = logging.getLogger("rich")
 
-#bot = commands.Bot(debug_guilds=["1021249050445611009", "851644348281258035"], intents=discord.Intents.all())
-bot = bridge.Bot(debug_guilds=["1021249050445611009", "851644348281258035"], command_prefix="$", intents=discord.Intents.all())
+bot = commands.Bot(debug_guilds=["1021249050445611009", "851644348281258035"], intents=discord.Intents.all())
 
 def load_all():
     for filename in track(os.listdir('./core'), description="loading core"):
         if filename.endswith('.py'):
-            bot.load_extension(f'core.{filename[:-3]}')
+                bot.load_extension(f'core.{filename[:-3]}')
 @bot.event
 async def on_application_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
@@ -35,8 +35,8 @@ async def on_ready():
     guilds = 0
     for c in bot.guilds:
         guilds += 1
-    log.info(f"Bot is currently in {guilds} servers")
-    log.info(f"{bot.user} has connected to discord")
+    log.info(f"Bot is currently in {guilds} servers")  # type: ignore
+    log.info(f"{bot.user} has connected to discord")  # type: ignore
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="becoming sentient"))
 
 load_all()

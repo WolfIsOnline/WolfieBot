@@ -1,12 +1,9 @@
-import wave
 import discord
 import wavelink
 import logging
 import time
 import asyncio
 
-from wavelink.ext import spotify
-from wavelink.ext.spotify import SpotifyTrack
 from discord.ext import commands
 from discord.commands import slash_command
 from classes.utils import Utils
@@ -29,7 +26,7 @@ class Music(commands.Cog, wavelink.Player):
 
     async def connect_nodes(self):
         await self.bot.wait_until_ready()
-        await wavelink.NodePool.create_node(bot=self.bot, host='0.0.0.0', port=2333, password="youshallnotpass")
+        await wavelink.NodePool.create_node(bot=self.bot, host='127.0.0.1', port=2333, password="youshallnotpass")
 
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, node: wavelink.Node):
@@ -64,26 +61,29 @@ class Music(commands.Cog, wavelink.Player):
                 embed.add_field(name="Type: ", value=_type, inline=True)
                 await ctx.respond(embed=embed)
             else:
-                await self.bot_utils.notify(ctx, RESPOND_NOT_PLAYING)
+                await ctx.respond(RESPOND_NOT_PLAYING)
 
         else:
             await ctx.respond(RESPONSE_DISCONNECTED)
 
+    @slash_command()
+    async def volume(self, ctx, volume : int):
+        node = wavelink.NodePool.get_node()
+        player = node.get_player(ctx.guild)
+
+        await player.set_volume(int(volume))
+        await ctx.respond("success")
+
     @slash_command(description="Plays a song.")
     async def play(self, ctx, search: str):
-        vc = ctx.voice_client
-        if not vc:
-            vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
-
-        if ctx.author.voice.channel.id != vc.channel.id:
-            return await ctx.respond("I'm not in your voice channel") 
-
         song = await wavelink.YouTubeTrack.search(query=search, return_first=True)
-
-        if not song:
-            return await ctx.respond("No song was found.")
+        if not ctx.voice_client:
+            vc: wavelink.Player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+        else:
+            vc: wavelink.Player = ctx.voice_client
 
         await vc.play(song)
+
         self.requester = ctx.author
         await self.display_playing(ctx)
 
@@ -99,9 +99,9 @@ class Music(commands.Cog, wavelink.Player):
                 await vc.stop()
                 await ctx.respond("Music stopped")
             else:
-                await self.bot_util.notify(ctx, RESPOND_NOT_PLAYING)
+                await ctx.respond(ctx, RESPOND_NOT_PLAYING)
         else:
-            await self.bot_util.notify(ctx, RESPOND_DISCONNECTED)
+            await ctx.respond(RESPOND_DISCONNECTED)
 
     @slash_command(description="Disconnects bot from voice channel")
     async def disconnect(self, ctx):

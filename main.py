@@ -10,7 +10,6 @@ from rich.progress import track
 from core.music import * 
 from discord.ext import commands, bridge
 from discord import SlashCommandGroup
-from core.general import General
 
 log = _Logging()
 log = logging.getLogger("rich")

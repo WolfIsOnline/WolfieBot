@@ -3,9 +3,14 @@ from database.database import _User_Database
 ud = _User_Database()
 class Transactions():
 
+    def get_balance(self, user_id):
+        balance = ud.get_user_key(user_id, "bank_balance")
+        if(balance == "None"):
+            balance = 0
+        return int(balance)
+        
     async def insufficient_funds(self, user_id, amount):
-        balance = int(ud.get_user_key(user_id, "bank_balance"))
-        if balance < amount:
+        if self.get_balance(user_id) < amount:
             return True
         return False
 

@@ -9,6 +9,7 @@ from discord import SlashCommandGroup
 from classes.utils import Utils
 from database.database import Guild_DataBase
 from core.quotes import Quotes
+from core.nocturnia import Nocturnia
 
 gd = Guild_DataBase()
 class Dev(commands.Cog):
@@ -17,6 +18,7 @@ class Dev(commands.Cog):
         self.bot = bot
         self.utils = Utils()
         self.quotes = Quotes(bot)
+        self.nocturnia = Nocturnia(bot)
 
     dev = SlashCommandGroup("dev", "Dev commands", checks=[commands.is_owner().predicate])
 
@@ -34,6 +36,11 @@ class Dev(commands.Cog):
         gd.update_guild_key(ctx.guild.id, "mod_id", id)
         await self.utils.notify(ctx, "Mod set", f"Mod set to <@&{id}>", "Dev commands")
 
+
+    @dev.command(description="kills person")
+    async def kill(self, ctx, user: discord.User):
+        await self.nocturnia.notify_death(user.id)
+        await self.utils.notify(ctx, "User killed", f"{user} has been killed", "Dev commands")
 
     @dev.command(description="reload cog")
     async def reload(self, ctx, cog):

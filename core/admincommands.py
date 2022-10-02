@@ -1,6 +1,7 @@
 import discord
 
 from discord.ext import commands
+from discord.commands import slash_command
 from discord import SlashCommandGroup
 from core.automove import AutoMove
 from core.economy import Economy

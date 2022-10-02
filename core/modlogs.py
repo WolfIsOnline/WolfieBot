@@ -129,4 +129,5 @@ class ModLogs(commands.Cog):
 
 def setup(bot):
     bot.add_cog(ModLogs(bot))
+    #d
 

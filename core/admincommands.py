@@ -55,5 +55,6 @@ class AdminCommands(commands.Cog):
     async def setquotes(self, ctx, id):
         await self.quotes.setquotes(id)
         await ctx.respond("Quotes channel set")
+        
 def setup(bot):
     bot.add_cog(AdminCommands(bot))

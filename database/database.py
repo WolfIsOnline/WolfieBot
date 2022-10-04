@@ -79,10 +79,10 @@ class _User_Database:
         except DuplicateKeyError:
             log.info(f"{id} is a duplicate")
 
-    def delete_user_key(self, user_id, id, value):
+    def delete_user_key(self, user_id, key_id, value):
         document = self.client["users"][str(user_id)]
-        document.find_one_and_delete({"_id": id},{"value": value})
-        log.info(f"{id} has been deleted")
+        document.find_one_and_delete({"_id": key_id},{"value": value})
+        log.info(f"{key_id} has been deleted")
 
     def get_user_key(self, user_id, id):
         document = self.client["users"][str(user_id)]
@@ -98,20 +98,20 @@ class Guild_DataBase:
         MONGODB_CONNECTION = os.environ.get("MONGODB_CONNECTION")
         self.client = MongoClient(MONGODB_CONNECTION)
 
-    def add_guild(self, user_id):
+    def add_guild(self, guild_id):
         try:
-            self.client.guilds.create_collection(str(user_id))
-            log.info(f"{user_id} has been added")
+            self.client.guilds.create_collection(str(guild_id))
+            log.info(f"{guild_id} has been added")
         except CollectionInvalid:
-            log.info(f"{user_id} already exists")
+            log.info(f"{guild_id} already exists")
     
-    def update_guild_key(self, user_id, id, value):
-        document = self.client["guilds"][str(user_id)]
+    def update_guild_key(self, guild_id, id, value):
+        document = self.client["guilds"][str(guild_id)]
         document.find_one_and_update({"_id": str(id)},{"$set": {"value": str(value)}},upsert=True)
 
-    def add_guild_key(self, user_id, id, value):
+    def add_guild_key(self, guild_id, id, value):
         try:
-            document = self.client["guilds"][str(user_id)]
+            document = self.client["guilds"][str(guild_id)]
             data = {"_id": str(id), "value": str(value)}
             document.insert_one(data)
             log.info(f"{id} has been added")
@@ -119,13 +119,13 @@ class Guild_DataBase:
         except DuplicateKeyError:
             log.info(f"{id} is a duplicate")
 
-    def delete_guild_key(self, user_id, id, value):
-        document = self.client["guilds"][str(user_id)]
+    def delete_guild_key(self, guild_id, id, value):
+        document = self.client["guilds"][str(guild_id)]
         document.find_one_and_delete({"_id": id},{"value": value})
         log.info(f"{id} has been deleted")
 
-    def get_guild_key(self, user_id, id):
-        document = self.client["guilds"][str(user_id)]
+    def get_guild_key(self, guild_id, id):
+        document = self.client["guilds"][str(guild_id)]
         results = document.find({"_id":str(id)})
         value = "None"
         for x in results:

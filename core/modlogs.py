@@ -74,15 +74,16 @@ class ModLogs(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        entry = await before.guild.audit_logs(limit=1, action=discord.AuditLogAction.member_update).flatten()
-        embed = discord.Embed(title="Nickname Changed", description=before.nick, color=0x738adb)
-        embed.add_field(name="After change", value=after.nick, inline=True)
-        embed.add_field(name="Changed by", value=entry[0].user, inline=True)
-        embed.set_author(name=after, icon_url=after.display_avatar)
-        embed.set_footer(text=f"Account ID: {after.id}")
+        if not before.nick == after.nick:
+            entry = await before.guild.audit_logs(limit=1, action=discord.AuditLogAction.member_update).flatten()
+            embed = discord.Embed(title="Nickname Changed", description=before.nick, color=0x738adb)
+            embed.add_field(name="After change", value=after.nick, inline=True)
+            embed.add_field(name="Changed by", value=entry[0].user, inline=True)
+            embed.set_author(name=after, icon_url=after.display_avatar)
+            embed.set_footer(text=f"Account ID: {after.id}")
 
-        channel = int(db.get_guild_key(before.guild.id, "modlog_channel"))
-        await self.bot.get_channel(channel).send(embed=embed)
+            channel = int(db.get_guild_key(before.guild.id, "modlog_channel"))
+            await self.bot.get_channel(channel).send(embed=embed)
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):

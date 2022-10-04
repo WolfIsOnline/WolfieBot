@@ -23,7 +23,7 @@ class Economy(commands.Cog):
     async def payday(self, ctx):
         amount = 1000
         await self.transactions.deposit(ctx.author.id, amount, "payday", "wolfiebot")
-        await self.utils.notify(ctx, "Deposit", f"{currency_symbol}{amount:,} has been deposited into your account", "Nocturnia Bank", ctx.guild.icon.url)
+        await self.utils.notify(ctx, "Deposit", f"**{currency_symbol}{amount:,}** has been deposited into your account", "Nocturnia Bank", ctx.guild.icon.url)
 
     async def givemoney(self, ctx, amount, user: discord.User):
         id = user.id

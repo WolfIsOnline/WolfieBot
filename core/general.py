@@ -2,12 +2,35 @@ import discord
 
 from discord.ext import commands
 from discord.commands import slash_command
+from discord import SlashCommandGroup
 from classes.utils import Utils
+from core.nocturnia import Nocturnia
 
 class General(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.utils = Utils()
+        self.nocturnia = Nocturnia(bot)
+
+    math = SlashCommandGroup("math", "Math commands")
+    @math.command(description="Add two numbers")
+    async def add(self, ctx, num1 : float, num2 : float):
+        return await ctx.respond(f"{num1 + num2}")
+
+    @math.command(description="Subtract two numbers")
+    async def subtract(self, ctx, num1 : float, num2 : float):
+        return await ctx.respond(f"{num1 - num2}")
+
+    @math.command(description="Multiply two numbers")
+    async def multiply(self, ctx, num1 : float, num2 : float):
+        return await ctx.respond(f"{num1 * num2}")
+
+    @math.command(description="Divide two numbers")
+    async def divide(self, ctx, num1 : float, num2 : float):
+        if num2 == 0:
+            await self.nocturnia.notify_death(ctx.author.id)
+            return await ctx.respond("What have you done?")
+        return await ctx.respond(f"{num1 / num2}")
 
     @slash_command(description="Get users profile picture")
     async def pfp(self, ctx, user: discord.User):

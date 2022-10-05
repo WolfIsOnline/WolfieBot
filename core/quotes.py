@@ -22,27 +22,23 @@ class Quotes(commands.Cog):
         channel = self.bot.get_channel(int(gd.get_guild_key(GUILD_ID, "quotes_channel")))
         quotes = await channel.history(limit=10000).flatten()
         size = 0
-        log = open("quotes.log", "w")
-        for i in quotes:
-            if i.content.startswith('\"') or i.content.startswith('“'):
-                size += 1
-                log.write(i.content + "\n")
-        log.close()
+        with open("quotes.log", "w") as log:
+            for i in quotes:
+                if i.content.startswith('\"') or i.content.startswith('“'):
+                    size += 1
+                    log.write(i.content + "\n")
 
     async def add_quote(self, message):
+        contents = message.content
         channel = self.bot.get_channel(int(gd.get_guild_key(GUILD_ID, "quotes_channel")))
-        quotes = await channel.history(limit=1).flatten()
         size = 0
-        log = open("quotes.log", "a")
-        for i in quotes:
-            if i.content.startswith('\"') or i.content.startswith('“'):
+        with open("quotes.log", "a") as log:
+            if contents.startswith('\"') or message.startswith('“'):
                 size += 1
-                log.write(i.content + "\n")
-                log.close()
-                log_read = open("quotes.log", "r")
-                temp = str(len(log_read.readlines()))
-                await self.utils.notify_channel(channel, "Quote Added", i.content, f"Quote #{temp}")
-                log_read.close()
+                log.write(contents + "\n")
+                with open("quotes.log", "r") as log_read:
+                    temp = str(len(log_read.readlines()))    
+                await self.utils.notify_channel(channel, "Quote Added", contents, f"Quote #{temp}")
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -53,10 +49,10 @@ class Quotes(commands.Cog):
 
     @slash_command(description="Gets a random quote submitted by Members")
     async def quote(self, ctx):
-        log = open("quotes.log", "r")
-        quotes = log.readlines()
-        index = random.randrange(len(quotes))
-        await ctx.respond(quotes[index])
+        with open("quotes.log", "r") as log:
+            quotes = log.readlines()
+            index = random.randrange(len(quotes))
+            await ctx.respond(quotes[index])
 
 
 def setup(bot):

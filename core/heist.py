@@ -2,6 +2,7 @@ import math
 import discord
 import asyncio
 import random
+import logging
 
 from discord.ext import commands
 from discord.commands import slash_command
@@ -11,7 +12,7 @@ from classes.transactions import Transactions
 from core.nocturnia import Nocturnia
 
 
-
+log = logging.getLogger("rich")
 gd = Guild_DataBase()
 class Heist(commands.Cog):
     def __init__(self, bot):
@@ -28,14 +29,9 @@ class Heist(commands.Cog):
     @slash_command(description="Rob someone")
     async def heist(self, ctx, user: discord.User):
         
-        if not await self.utils.is_owner(ctx):
-            return await ctx.respond("command disabled")
-        
         player_id = ctx.author.id
         guild_id = ctx.author.guild.id
         target_id = user.id
-        
-        print(type(user.id))
         
         running = gd.get_guild_key(guild_id, "heist_running")
         if running == "None":
@@ -49,6 +45,7 @@ class Heist(commands.Cog):
         if player_id == target_id: 
             return await self.utils.notify(ctx, "Can't Start", "You can't start a heist on yourself", "Heist")
         
+        log.info(f"heist has started in {guild_id}")
         start_cost = 10000
         target_limit = 5000
         
@@ -128,6 +125,7 @@ class Heist(commands.Cog):
         gd.delete_guild_key(ctx.author.guild.id, "heist_can_join", False)
         gd.delete_guild_key(ctx.author.guild.id, "heist_target", target_id)
         self.chance = 5
+        log.info(f"heist has ended on {ctx.author.guild.id}")
 
     def get_stolen_amount(self, amount, percentage):
         return int(amount * percentage / 100)

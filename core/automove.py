@@ -4,7 +4,6 @@ import discord
 from unicodedata import category
 
 from discord.ext import commands
-from discord.commands import slash_command
 from database.database import Guild_DataBase
 
 
@@ -15,9 +14,6 @@ db = Guild_DataBase()
 class AutoMove(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
- 
-    async def test(self, ctx):
-        await ctx.respond("test2")
 
     async def check_empty(self, member, before_id):
         check_id = db.get_guild_key(member.guild.id, f"automove_{before_id}")
@@ -52,7 +48,7 @@ class AutoMove(commands.Cog):
                     bitrate=source_channel.bitrate, 
                     user_limit=source_channel.user_limit, 
                     overwrites = {
-                        member: discord.PermissionOverwrite(view_channel=True, connect=True, speak=True, manage_channels=True)
+                        member: discord.PermissionOverwrite(view_channel=True, connect=True, speak=True, manage_channels=True, manage_permissions=True)
                     })
                 await member.move_to(channel)
                 db.add_guild_key(member.guild.id, f"automove_{channel.id}", channel.id)

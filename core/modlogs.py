@@ -2,11 +2,7 @@ import discord
 import pytz
 import asyncio
 
-from doctest import debug_script
-from email import message
 from discord.ext import commands
-from discord import SlashCommandGroup
-from discord.commands import slash_command
 from database.database import Guild_DataBase
 from discord.ui import Button, View
 from classes.utils import Utils

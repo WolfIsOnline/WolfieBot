@@ -4,7 +4,6 @@ from discord.ext import commands
 from discord.commands import slash_command
 from classes.transactions import Transactions
 from classes.utils import Utils
-from datetime import datetime
 from database.database import _User_Database
 
 currency_name = "Eurodollar"

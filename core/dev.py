@@ -1,9 +1,6 @@
 import discord
-import logging
 
-from pydoc import describe
-from discord.ext import commands, bridge
-from discord.commands import slash_command
+from discord.ext import commands
 from discord.utils import get
 from discord import SlashCommandGroup
 from classes.utils import Utils

@@ -9,15 +9,14 @@ from discord.commands import slash_command
 from classes.utils import Utils
 from classes._logging import _Logging
 
-
 RESPONSE_CONNECTED = "I'm in a voice channel"
 RESPONSE_DISCONNECTED = "I'm not in a voice channel"
 RESPOND_NOT_PLAYING = "I'm not playing anything"
 log = _Logging()
-log = logging.getLogger("rich")
+
 
 class Music(commands.Cog, wavelink.Player):
-    
+
     def __init__(self, bot):
         self.bot = bot
         self.requester = self.bot
@@ -29,8 +28,8 @@ class Music(commands.Cog, wavelink.Player):
         await wavelink.NodePool.create_node(bot=self.bot, host='127.0.0.1', port=2333, password="youshallnotpass")
 
     @commands.Cog.listener()
-    async def on_wavelink_node_ready(self, node: wavelink.Node):
-        log.info(f"node {node.identifier} is ready on port {node._port}")
+    async def on_wavelink_node_ready(self, node: wavelink.Node): pass
+        #log.info(f"node {node.identifier} is ready on port {node._port}")
 
     async def display_playing(self, ctx):
 
@@ -38,7 +37,7 @@ class Music(commands.Cog, wavelink.Player):
         # it will display the length of the source
         # .5 seconds seems to be the minium amount of time
         # for the vc.position to get the correct position
-        await asyncio.sleep(.5) 
+        await asyncio.sleep(.5)
 
         vc = ctx.voice_client
         if vc:
@@ -67,7 +66,7 @@ class Music(commands.Cog, wavelink.Player):
             await ctx.respond(RESPONSE_DISCONNECTED)
 
     @slash_command()
-    async def volume(self, ctx, volume : int):
+    async def volume(self, ctx, volume: int):
         node = wavelink.NodePool.get_node()
         player = node.get_player(ctx.guild)
 
@@ -115,6 +114,7 @@ class Music(commands.Cog, wavelink.Player):
     async def connect(self, ctx):
         await ctx.author.voice.channel.connect(cls=wavelink.Player)
         await ctx.respond("I'm here! :smile:")
+
 
 def setup(bot):
     bot.add_cog(Music(bot))

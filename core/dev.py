@@ -1,14 +1,15 @@
 import discord
 
 from discord.ext import commands
-from discord.utils import get
 from discord import SlashCommandGroup
 from classes.utils import Utils
-from database.database import Guild_DataBase
+from database.database import GuildDatabase
 from core.quotes import Quotes
 from core.nocturnia import Nocturnia
 
-gd = Guild_DataBase()
+gd = GuildDatabase()
+
+
 class Dev(commands.Cog):
 
     def __init__(self, bot):
@@ -24,15 +25,14 @@ class Dev(commands.Cog):
         await ctx.respond("working!")
 
     @dev.command(description="Set admin role")
-    async def setadmin(self, ctx, id):
-        gd.update_guild_key(ctx.guild.id, "admin_id", id)
-        await self.utils.notify(ctx, "Admin set", f"Admin set to <@&{id}>", "Dev commands")
+    async def set_admin(self, ctx, role: discord.Role):
+        gd.update_guild_key(ctx.guild.id, "admin_id", role.id)
+        await self.utils.notify(ctx, "Admin set", f"Admin set to {role.mention}", "Dev commands")
 
     @dev.command(description="Set mod role")
-    async def setmod(self, ctx, id):
-        gd.update_guild_key(ctx.guild.id, "mod_id", id)
-        await self.utils.notify(ctx, "Mod set", f"Mod set to <@&{id}>", "Dev commands")
-
+    async def set_mod(self, ctx, role: discord.Role):
+        gd.update_guild_key(ctx.guild.id, "mod_id", role.id)
+        await self.utils.notify(ctx, "Mod set", f"Mod set to {role.mention}", "Dev commands")
 
     @dev.command(description="kills person")
     async def kill(self, ctx, user: discord.User):
@@ -55,10 +55,10 @@ class Dev(commands.Cog):
         await self.utils.notify(ctx, "Unloaded", f"{cog} successfully unloaded", "Dev commands")
 
     @dev.command(description="Update quote file")
-    async def forceupdate(self, ctx):
+    async def force_update(self, ctx):
         await self.quotes.force_refresh()
         await self.utils.notify(ctx, "Updated", "Log file updated", "Dev commands")
 
-        
+
 def setup(bot):
     bot.add_cog(Dev(bot))

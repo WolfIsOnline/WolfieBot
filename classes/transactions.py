@@ -1,6 +1,6 @@
-from database.database import _User_Database
+from database.database import UserDatabase
 
-ud = _User_Database()
+ud = UserDatabase()
 class Transactions():
 
     def get_balance(self, user_id):

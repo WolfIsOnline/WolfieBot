@@ -1,8 +1,8 @@
 import discord
 
-from database.database import Guild_DataBase
+from database.database import GuildDatabase
 
-gd = Guild_DataBase()
+gd = GuildDatabase()
 class Utils:
     
     DEFAULT_COLOR = 0x02e7e7

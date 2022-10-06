@@ -1,4 +1,3 @@
-import logging
 import discord
 
 from unicodedata import category
@@ -6,7 +5,6 @@ from unicodedata import category
 from discord.ext import commands
 from database.database import GuildDatabase
 
-log = logging.getLogger("rich")
 db = GuildDatabase()
 
 

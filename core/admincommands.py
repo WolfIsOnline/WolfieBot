@@ -25,7 +25,7 @@ class AdminCommands(commands.Cog):
 
     @admin.command(description="Sets auto room")
     async def set_auto_room(self, ctx, channel: discord.VoiceChannel):
-        await self.automove.set_auto_room(ctx, channel.id)
+        await self.auto_move.set_auto_room(ctx, channel.id)
         await self.utils.notify(ctx, "Auto Room", f"Auto Room is now set to {channel.mention}", "Admin commands")
 
     @admin.command(description="Give user money")

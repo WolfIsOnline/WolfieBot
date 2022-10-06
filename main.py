@@ -1,17 +1,14 @@
 from inspect import trace
 import discord
 import os
-import logging
 
-from classes._logging import _Logging
 from dotenv import load_dotenv, find_dotenv
 from rich.progress import track
 from core.music import *
 from discord.ext import commands, bridge
 
-log = _Logging()
 
-bot = commands.Bot(debug_guilds=["1021249050445611009", "851644348281258035"], intents=discord.Intents.all())
+bot = commands.Bot(debug_guilds=["1021249050445611009"], intents=discord.Intents.all())
 
 
 def load_all():

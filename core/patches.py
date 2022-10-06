@@ -1,6 +1,5 @@
 import discord
 
-from discord import slash_command
 from discord.ext import commands
 from classes.utils import Utils
 

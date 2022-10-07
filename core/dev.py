@@ -1,6 +1,8 @@
+from xml.dom import NotFoundErr
 import discord
 
 from discord.ext import commands
+from discord.ext.commands import context
 from discord import SlashCommandGroup
 from classes.utils import Utils
 from database.database import GuildDatabase
@@ -19,10 +21,6 @@ class Dev(commands.Cog):
         self.nocturnia = Nocturnia(bot)
 
     dev = SlashCommandGroup("dev", "Dev commands", checks=[commands.is_owner().predicate])
-
-    @dev.command(description="Test")
-    async def test(self, ctx):
-        await ctx.respond("working!")
 
     @dev.command(description="Set admin role")
     async def set_admin(self, ctx, role: discord.Role):
@@ -53,12 +51,6 @@ class Dev(commands.Cog):
     async def unload(self, ctx, cog):
         self.bot.unload_extension(f"core.{cog}")
         await self.utils.notify(ctx, "Unloaded", f"{cog} successfully unloaded", "Dev commands")
-
-    @dev.command(description="Update quote file")
-    async def force_update(self, ctx):
-        await self.quotes.force_refresh()
-        await self.utils.notify(ctx, "Updated", "Log file updated", "Dev commands")
-
 
 def setup(bot):
     bot.add_cog(Dev(bot))

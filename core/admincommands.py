@@ -9,8 +9,9 @@ from core.welcome import Welcome
 from core.economy import Economy
 from core.quotes import Quotes
 from classes.utils import Utils
+from database.database import GuildDatabase
 
-
+gd = GuildDatabase()
 class AdminCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -49,13 +50,22 @@ class AdminCommands(commands.Cog):
 
     @admin.command(description="Update quote file")
     async def force_update(self, ctx):
-        await self.quotes.force_refresh()
+        await self.quotes.force_refresh(ctx.author.guild.id)
         await ctx.respond("Log file updated")
 
     @admin.command(description="Set quotes channel")
     async def set_quotes(self, ctx, channel: discord.TextChannel):
-        await self.quotes.set_quotes(channel.id)
+        guild_id = ctx.author.guild.id
+        await self.quotes.set_quotes(guild_id, channel.id)
         await ctx.respond(f"Quotes channel set to {channel.mention}")
+        
+    @admin.command(description="Add quote by ID")
+    async def add_quote(self, ctx, message_id):
+        guild_id = ctx.author.guild.id
+        channel = self.bot.get_channel(gd.get_guild_key(guild_id, "quotes_channel"))
+        message = await channel.fetch_message(int(message_id))
+        await self.quotes.add_quote(guild_id, message)
+        await ctx.respond("Done", ephemeral=True)
 
 
 def setup(bot):

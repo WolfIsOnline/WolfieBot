@@ -5,7 +5,6 @@ from discord.commands import slash_command
 from classes.utils import Utils
 from database.database import GuildDatabase
 
-GUILD_ID = 851644348281258035
 gd = GuildDatabase()
 
 
@@ -15,11 +14,11 @@ class Quotes(commands.Cog):
         self.bot = bot
         self.utils = Utils()
 
-    async def set_quotes(self, channel_id):
-        gd.update_guild_key(GUILD_ID, "quotes_channel", channel_id)
+    async def set_quotes(self, guild_id, channel_id):
+        gd.update_guild_key(guild_id, "quotes_channel", channel_id)
 
-    async def force_refresh(self):
-        channel = self.bot.get_channel(int(gd.get_guild_key(GUILD_ID, "quotes_channel")))
+    async def force_refresh(self, guild_id):
+        channel = self.bot.get_channel(int(gd.get_guild_key(guild_id, "quotes_channel")))
         quotes = await channel.history(limit=10000).flatten()
         size = 0
         with open("quotes.log", "w") as log:
@@ -28,9 +27,9 @@ class Quotes(commands.Cog):
                     size += 1
                     log.write(i.content + "\n")
 
-    async def add_quote(self, message):
+    async def add_quote(self, guild_id, message):
         contents = message.content
-        channel = self.bot.get_channel(int(gd.get_guild_key(GUILD_ID, "quotes_channel")))
+        channel = self.bot.get_channel(int(gd.get_guild_key(guild_id, "quotes_channel")))
         size = 0
         with open("quotes.log", "a") as log:
             if contents.startswith('\"') or message.startswith('“'):
@@ -44,8 +43,10 @@ class Quotes(commands.Cog):
     async def on_message(self, message):
         if message.author.bot:
             return
-        if message.channel.id == int(gd.get_guild_key(GUILD_ID, "quotes_channel")):
-            await self.add_quote(message)
+        
+        guild_id = message.guild.id
+        if message.channel.id == int(gd.get_guild_key(message.guild.id, "quotes_channel")):
+            await self.add_quote(guild_id, message)
 
     @slash_command(description="Gets a random quote submitted by Members")
     async def quote(self, ctx):

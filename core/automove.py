@@ -45,7 +45,7 @@ class AutoMove(commands.Cog):
                     user_limit=source_channel.user_limit,
                     overwrites={
                         member: discord.PermissionOverwrite(view_channel=True, connect=True, speak=True,
-                                                            manage_channels=True, manage_permissions=True)
+                                                            manage_channels=True, manage_permissions=True, mute_members=True, deafen_members=True)
                     })
                 await member.move_to(channel)
                 db.add_guild_key(member.guild.id, f"automove_{channel.id}", channel.id)

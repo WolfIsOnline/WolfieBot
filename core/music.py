@@ -10,6 +10,7 @@ from discord.ext import commands
 from discord.commands import slash_command
 from classes.utils import Utils
 
+COG = "Music"
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -30,16 +31,16 @@ class Music(commands.Cog):
         try:
             player = self.get_node_player(ctx)
             await player.disconnect()
-            await ctx.respond("disconnected")
+            await ctx.respond("Bye bye! :wave:")
         except AttributeError:
             pass
         
-    @slash_command(description="Stop a song")
+    @slash_command(description="Stops and clears queue")
     async def stop(self, ctx):
         player = self.get_node_player(ctx)
         try:
             await player.stop()
-            await ctx.respond("stopped()")
+            await self.utils.notify(ctx, "Stopped", "Player has stopped", COG)
             
         except AttributeError:
             pass     
@@ -49,7 +50,8 @@ class Music(commands.Cog):
         try:
             player = self.get_node_player(ctx)
             await player.pause()
-            await ctx.respond("paused()")
+            await self.display_playing(ctx, player)
+            
         except AttributeError:
             pass
         
@@ -58,7 +60,7 @@ class Music(commands.Cog):
         try:
             player = self.get_node_player(ctx)
             await player.resume()
-            await ctx.respond("resume()")
+            await self.display_playing(ctx, player)
         
         except AttributeError:
             pass
@@ -72,8 +74,7 @@ class Music(commands.Cog):
                 player = await user_voice_channel.connect(cls=wavelink.Player)
                 
         except AttributeError:
-            return await ctx.respond("You are not in a voice channel.")
-
+            return await self.utils.notify(ctx, "Can't Play", "You are not in a voice channel", COG)
         
         track = await wavelink.YouTubeTrack.search(query=song, return_first=True)
         await player.play(track)
@@ -97,7 +98,7 @@ class Music(commands.Cog):
         
         await player.set_volume(volume) 
         
-        await self.utils.notify(ctx, "Volume Changed", f"Volume set to {volume}", "Music")
+        await self.utils.notify(ctx, "Volume Changed", f"Volume set to {volume}", COG)
         
     
     def get_node_player(self, ctx):
@@ -112,7 +113,10 @@ class Music(commands.Cog):
         # .5 seconds seems to be the minium amount of time
         # for the vc.position to get the correct position
         await asyncio.sleep(.5)
-        embed = discord.Embed(title=f"Now Playing: {player.source.title}", url=player.source.uri, color=0x02e7e7)
+        if player.is_paused():
+            embed = discord.Embed(title=f"Paused: {player.source.title}", url=player.source.uri, color=0x02e7e7)
+        else:
+            embed = discord.Embed(title=f"Playing: {player.source.title}", url=player.source.uri, color=0x02e7e7)
         embed.set_author(name=f"Uploader: {player.source.author}")
         embed.set_footer(text=f"Requested By {self.requester}", icon_url=self.requester.display_avatar)
         embed.set_thumbnail(url=player.source.thumb)

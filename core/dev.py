@@ -8,6 +8,7 @@ from classes.utils import Utils
 from database.database import GuildDatabase
 from core.quotes import Quotes
 from core.nocturnia import Nocturnia
+from core.patches import Patches
 
 gd = GuildDatabase()
 
@@ -19,6 +20,7 @@ class Dev(commands.Cog):
         self.utils = Utils()
         self.quotes = Quotes(bot)
         self.nocturnia = Nocturnia(bot)
+        self.patches = Patches(bot)
 
     dev = SlashCommandGroup("dev", "Dev commands", checks=[commands.is_owner().predicate])
 
@@ -51,6 +53,21 @@ class Dev(commands.Cog):
     async def unload(self, ctx, cog):
         self.bot.unload_extension(f"core.{cog}")
         await self.utils.notify(ctx, "Unloaded", f"{cog} successfully unloaded", "Dev commands")
+        
+    @dev.command(description="set patches hook")
+    async def set_patch_hook(self, ctx, channel: discord.TextChannel):
+        await self.patches.set_patch_hook(ctx, channel)
+        await self.utils.notify(ctx, "Patch Hook Set", f"Patch hook set to {channel.mention}", "Dev commands")
+
+    @dev.command(description="set patches hook")
+    async def set_game_updates(self, ctx, channel: discord.TextChannel):
+        await self.patches.set_game_updates(ctx, channel)
+        await self.utils.notify(ctx, "Game Updates Set", f"Game updates set to {channel.mention}", "Dev commands")
+        
+    @dev.command(description="set patches hook")
+    async def set_free_games(self, ctx, channel: discord.TextChannel):
+        await self.patches.set_free_games(ctx, channel)
+        await self.utils.notify(ctx, "Free Games Set", f"Free games set to {channel.mention}", "Dev commands")
 
 def setup(bot):
     bot.add_cog(Dev(bot))

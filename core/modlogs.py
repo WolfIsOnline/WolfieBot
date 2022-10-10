@@ -125,6 +125,14 @@ class ModLogs(commands.Cog):
         channel = db.get_guild_key(message.guild.id, "modlog_channel")
         await self.bot.get_channel(int(channel)).send(embed=log_embed)
 
-
+    async def send_error_msg(self, guild, message, error_info, error_code):
+        guild_id = guild.id
+        bot = guild.get_member(self.bot.user.id)
+        error = discord.Embed(description=message, title=error_info, color=0xb33a3a)
+        error.set_author(name=error_code)
+        error.set_thumbnail(url=bot.display_avatar)
+        channel = db.get_guild_key(guild_id, "modlog_channel")
+        await self.bot.get_channel(int(channel)).send(embed=error)
+        
 def setup(bot):
     bot.add_cog(ModLogs(bot))

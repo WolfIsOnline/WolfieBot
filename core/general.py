@@ -5,6 +5,7 @@ from discord.commands import slash_command
 from discord import SlashCommandGroup
 from classes.utils import Utils
 from core.nocturnia import Nocturnia
+from core.economy import Economy
 
 
 class General(commands.Cog):
@@ -12,6 +13,7 @@ class General(commands.Cog):
         self.bot = bot
         self.utils = Utils()
         self.nocturnia = Nocturnia(bot)
+        self.economy = Economy(bot)
 
     math = SlashCommandGroup("math", "Math commands")
 
@@ -43,6 +45,10 @@ class General(commands.Cog):
     @slash_command(description="Pong")
     async def ping(self, ctx):
         await ctx.respond("Pong")
+        
+    @slash_command(description="Transfer funds to another member")
+    async def transfer(self, ctx, amount : int, user: discord.User):
+        await self.economy.transfer(ctx, amount, ctx.author, user)
 
 
 def setup(bot):

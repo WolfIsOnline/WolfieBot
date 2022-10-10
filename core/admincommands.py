@@ -8,6 +8,7 @@ from core.modlogs import ModLogs
 from core.welcome import Welcome
 from core.economy import Economy
 from core.quotes import Quotes
+from core.autorole import AutoRole
 from classes.utils import Utils
 from database.database import GuildDatabase
 
@@ -21,6 +22,7 @@ class AdminCommands(commands.Cog):
         self.quotes = Quotes(bot)
         self.economy = Economy(bot)
         self.utils = Utils()
+        self.auto_role = AutoRole(bot)
 
     admin = SlashCommandGroup("admin", "Admin commands")
 
@@ -66,6 +68,11 @@ class AdminCommands(commands.Cog):
         message = await channel.fetch_message(int(message_id))
         await self.quotes.add_quote(guild_id, message)
         await ctx.respond("Done", ephemeral=True)
+        
+    @admin.command(description="Add auto role to list")
+    async def add_auto_role(self, ctx, role: discord.Role):
+        await self.auto_role.add_auto_role(role)
+        await ctx.respond("role added")
 
 
 def setup(bot):

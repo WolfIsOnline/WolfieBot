@@ -30,6 +30,21 @@ class Economy(commands.Cog):
 
     async def take_money(self, ctx, amount, user: discord.User):
         await self.transactions.withdraw(user.id, amount, f"admin withdrew", ctx.author.name)
+        
+    async def transfer(self, ctx, amount, transferer, transferee):
+        
+        sufficient = await self.transactions.sufficient_funds(transferer.id, amount)
+        if sufficient is False:
+            return await self.utils.notify(ctx, "Insufficient Funds", f"transfer was declined", "Bank")
+        
+        transferer_name = ctx.author.guild.get_member(transferer.id)
+        transferee_name = ctx.author.guild.get_member(transferee.id)
+        await self.transactions.withdraw(transferer.id, amount, f"transfer to {transferee}", "")
+        await self.transactions.deposit(transferee.id, amount, f"transfer from {transferer}", "")
+        await ctx.respond(f"{ctx.author.mention} transfered **{currency_symbol}{amount}** to {transferee.mention}")
+        
+        
+            
 
     @slash_command(description="Show current balance")
     async def balance(self, ctx, dm: bool = False):

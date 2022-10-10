@@ -28,12 +28,6 @@ class AutoRole(commands.Cog):
 
     async def add_auto_role(self, role: discord.Role):
         gd.append_guild_key_array(role.guild.id, KEY_ID, role.id)
-    
-    @slash_command()
-    async def sim_join(self, ctx):
-        member = ctx.guild.get_member(ctx.author.id)
-        await self.on_member_join(member)
-        await ctx.respond("Joining simulated")
         
         
 def setup(bot):

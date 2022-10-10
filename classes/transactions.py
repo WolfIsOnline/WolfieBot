@@ -9,10 +9,10 @@ class Transactions():
             balance = 0
         return int(balance)
         
-    async def insufficient_funds(self, user_id, amount):
-        if self.get_balance(user_id) < amount:
-            return True
-        return False
+    async def sufficient_funds(self, user_id, amount):
+        if amount > self.get_balance(user_id):
+            return False
+        return True
 
     async def deposit(self, user_id, amount, reason, member):
         try:

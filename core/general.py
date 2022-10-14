@@ -14,7 +14,6 @@ class General(commands.Cog):
         self.utils = Utils()
         self.nocturnia = Nocturnia(bot)
         self.economy = Economy(bot)
-        self.nfl_parse = Parse()
 
     @bridge.bridge_command(description="Add two numbers")
     async def add(self, ctx, num1: float, num2: float):

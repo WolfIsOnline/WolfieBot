@@ -1,4 +1,5 @@
 import discord
+import asyncio
 
 from discord.ext import commands
 from database.database import GuildDatabase
@@ -24,11 +25,10 @@ class AutoRole(commands.Cog):
                 await member.add_roles(role, reason="user joined")
             except discord.Forbidden as e:
                     await self.mod_logs.send_error_msg(member.guild, f"could not apply {role.mention} to {member.mention}", e.text, f"Error {e.code}")
-                
-
+            await asyncio.sleep(1) # need to throttle adding each user or mod logs will go crazy
+                            
     async def add_auto_role(self, role: discord.Role):
         gd.append_guild_key_array(role.guild.id, KEY_ID, role.id)
-        
-        
+
 def setup(bot):
     bot.add_cog(AutoRole(bot))

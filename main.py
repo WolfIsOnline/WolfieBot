@@ -11,7 +11,7 @@ from database.database import GuildDatabase
 from core.info import Info
 
 
-bot = bridge.Bot(command_prefix=".", debug_guilds=["1021249050445611009"], intents=discord.Intents.all())
+bot = bridge.Bot(command_prefix=".", debug_guilds=["1021249050445611009"], intents=discord.Intents.all(), help_command=None)
 
 
 db = GuildDatabase()

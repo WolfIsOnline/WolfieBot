@@ -6,7 +6,6 @@ from discord import SlashCommandGroup
 from classes.utils import Utils
 from core.nocturnia import Nocturnia
 from core.economy import Economy
-from classes.nfl.parse import Parse
 
 
 class General(commands.Cog):

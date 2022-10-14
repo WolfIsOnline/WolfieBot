@@ -73,6 +73,11 @@ class AdminCommands(commands.Cog):
     async def add_auto_role(self, ctx, role: discord.Role):
         await self.auto_role.add_auto_role(role)
         await ctx.respond("role added")
+        
+    @admin.command(description="Purge channel")
+    async def purge(self, ctx, amount = 1):
+        await ctx.channel.purge(limit=int(amount))
+        await ctx.respond(str(amount) + " messages have been deleted!", delete_after=3)
 
 
 def setup(bot):

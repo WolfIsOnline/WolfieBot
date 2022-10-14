@@ -138,6 +138,18 @@ class AdminCommands(commands.Cog):
             embed.add_field(name="Welcome Channel: ", value=channel.mention)
         except ValueError:
             embed.add_field(name="Welcome Channel: ", value="Not set")
+            
+        try:
+            role = []
+            role_ids = gd.get_guild_key_array(guild_id, "autoroles")
+
+            for c in role_ids:
+                role_name = ctx.guild.get_role(c)
+                role.append(role_name.mention)
+            
+            embed.add_field(name="Auto Roles: ", value=role)
+        except ValueError:
+            embed.add_field(name="Auto Roles: ", value="None set")
 
         await ctx.respond(embed=embed)
         

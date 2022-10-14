@@ -3,7 +3,7 @@ import discord
 import asyncio
 import random
 
-from discord.ext import commands
+from discord.ext import commands, bridge
 from discord.commands import slash_command
 from database.database import GuildDatabase
 from classes.utils import Utils
@@ -25,7 +25,7 @@ class Heist(commands.Cog):
         self.dead = []
         self.alive = []
 
-    @slash_command(description="Rob someone")
+    @bridge.bridge_command(description="Rob someone")
     async def heist(self, ctx, user: discord.User):
 
         player_id = ctx.author.id
@@ -149,7 +149,7 @@ class Heist(commands.Cog):
         else:
             return [False, f"{rand}%"]
 
-    @slash_command(description="Join a heist")
+    @bridge.bridge_command(description="Join a heist")
     async def join_heist(self, ctx):
         player_id = ctx.author.id
 

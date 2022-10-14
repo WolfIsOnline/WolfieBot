@@ -17,7 +17,11 @@ class Patches(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        guild_id = message.channel.guild.id
+        try:
+            guild_id = message.channel.guild.id
+        except AttributeError:
+            return print("bug in pycord when users use a command with a ephemeral param, ignore it")
+            
         if not message.channel.id == int(gd.get_guild_key(guild_id, PATCH_HOOK_KEY)):
             return
         

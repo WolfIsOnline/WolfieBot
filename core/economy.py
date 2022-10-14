@@ -1,6 +1,6 @@
 import discord
 
-from discord.ext import commands
+from discord.ext import commands, bridge
 from discord.commands import slash_command
 from classes.transactions import Transactions
 from classes.utils import Utils
@@ -18,12 +18,18 @@ class Economy(commands.Cog):
         self.utils = Utils()
         self.transactions = Transactions()
 
-    @slash_command(description="Get paid every hour")
+    @bridge.bridge_command(description="Get paid every hour")
     @commands.cooldown(1, 3600, commands.BucketType.user)
     async def payday(self, ctx):
         amount = 1000
         await self.transactions.deposit(ctx.author.id, amount, "payday", "wolfiebot")
-        await self.utils.notify(ctx, "Deposit", f"**{currency_symbol}{amount:,}** has been deposited into your account", "Nocturnia Bank", ctx.guild.icon.url)
+        
+        try:
+            guild_icon = ctx.guild.icon.url
+        except AttributeError:
+            guild_icon = ""
+            
+        await self.utils.notify(ctx, "Deposit", f"**{currency_symbol}{amount:,}** has been deposited into your account", "Nocturnia Bank", guild_icon)
 
     async def give_money(self, ctx, amount, user: discord.User):
         await self.transactions.deposit(user.id, amount, f"admin deposit", "noctornia_bank")
@@ -46,7 +52,7 @@ class Economy(commands.Cog):
         
             
 
-    @slash_command(description="Show current balance")
+    @bridge.bridge_command(description="Show current balance")
     async def balance(self, ctx, dm: bool = False):
         try:
             balance = int(ud.get_user_key(ctx.author.id, "bank_balance"))

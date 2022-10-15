@@ -4,7 +4,7 @@ def set_token():
     with open(".env", "w") as env:
         env.write(f"TOKEN={token}")
     print(f"{env.name} written")    
-    await set_database()
+    set_database()
     
 def set_database():
     database = input("Enter MongoDB connection: ")

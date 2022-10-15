@@ -38,14 +38,14 @@ class AutoMove(commands.Cog):
             if str(new_id) == str(auto_id):
                 source_channel = self.bot.get_channel(int(auto_id))
                 channel = await member.guild.create_voice_channel(
-                    member.name,
+                    f"{member.nick}'s Room",
                     reason="user requested",
                     category=source_channel.category,
                     bitrate=source_channel.bitrate,
                     user_limit=source_channel.user_limit,
                     overwrites={
                         member: discord.PermissionOverwrite(view_channel=True, connect=True, speak=True,
-                                                            manage_channels=True, manage_permissions=True, mute_members=True, deafen_members=True)
+                                                            manage_channels=True, manage_permissions=True, mute_members=True, deafen_members=True, move_members=True)
                     })
                 await member.move_to(channel)
                 db.add_guild_key(member.guild.id, f"automove_{channel.id}", channel.id)

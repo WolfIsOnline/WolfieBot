@@ -14,9 +14,11 @@ class SimpleEmbed(commands.Cog):
         
     async def simple_embed(self, ctx, channel: discord.TextChannel):
         embed = discord.Embed(title="This is the title of the embed", description="This is the description of the embed", color=self.utils.DEFAULT_COLOR)
-        embed.set_author(name="Author name will go here")
+        embed.set_author(name="Author name will go here", icon_url=ctx.author.display_avatar)
         embed.set_footer(text="This is the footer")
-           
+        embed.set_thumbnail(url=ctx.author.display_avatar)
+        embed.set_image(url=ctx.author.display_avatar)
+        
         edit_body = EmbedButton("Edit Body")
         edit_author = EmbedButton("Edit Author")
         edit_footer = EmbedButton("Edit Footer")
@@ -41,7 +43,13 @@ class SimpleEmbed(commands.Cog):
 
         async def edit_author_modal_callback(interaction):
             if self.children[0].value != "":
-                embed.set_author(name=self.children[0].value)
+                if self.children[1].value == "":
+                    embed.set_author(name=self.children[0].value, icon_url=embed.author.icon_url)
+                else:
+                    embed.set_author(name=self.children[0].value, icon_url=self.children[1].value)
+            if self.children[1].value != "":
+                if self.children[0].value == "":
+                    embed.set_author(name=embed.author.name, icon_url=self.children[1].value)
             await interaction.response.edit_message(embed=embed)
             
         async def edit_footer_modal_callback(interaction):
@@ -57,7 +65,7 @@ class SimpleEmbed(commands.Cog):
             self.children = modal.children
             
         async def edit_author_callback(interaction: discord.Interaction):
-            modal = EmbedModal("Edit Author", ["Edit Author"], [embed.author.name], [discord.InputTextStyle.short])
+            modal = EmbedModal("Edit Author", ["Edit Author Name", "Edit Author URL"], [embed.author.name, ""], [discord.InputTextStyle.short, discord.InputTextStyle.short])
             await interaction.response.send_modal(modal)
             modal.callback = edit_author_modal_callback
             self.children = modal.children
@@ -70,6 +78,7 @@ class SimpleEmbed(commands.Cog):
             
         async def confirm_callback(interaction: discord.Interaction):
             await channel.send(embed=embed)
+            await interaction.response.send_message("Embed set to " + channel.mention)
             
         edit_body.callback = edit_body_callback
         edit_author.callback = edit_author_callback
@@ -79,7 +88,6 @@ class SimpleEmbed(commands.Cog):
 class EmbedModal(Modal):
     def __init__(self, title, a_labels, a_placeholders, a_style):
         super().__init__(title=title)
-        
         
         self.value = None
         for c, label in enumerate(a_labels):

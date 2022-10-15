@@ -6,7 +6,7 @@ import asyncio
 import time
 
 from wavelink.player import Player
-from discord.ext import commands
+from discord.ext import commands, bridge
 from discord.commands import slash_command
 from classes.utils import Utils
 
@@ -26,7 +26,7 @@ class Music(commands.Cog):
     async def on_wavelink_node_ready(self, node: wavelink.Node):
         print(f"Node {node.identifier} is ready on {node.port}")
     
-    @slash_command(description="Disconnect bot")
+    @bridge.bridge_command(description="Disconnect bot")
     async def disconnect(self, ctx):
         try:
             player = self.get_node_player(ctx)
@@ -35,7 +35,7 @@ class Music(commands.Cog):
         except AttributeError:
             pass
         
-    @slash_command(description="Stops and clears queue")
+    @bridge.bridge_command(description="Stops and clears queue")
     async def stop(self, ctx):
         player = self.get_node_player(ctx)
         try:
@@ -45,7 +45,7 @@ class Music(commands.Cog):
         except AttributeError:
             pass     
         
-    @slash_command(description="Pause current song")
+    @bridge.bridge_command(description="Pause current song")
     async def pause(self, ctx):
         try:
             player = self.get_node_player(ctx)
@@ -55,7 +55,7 @@ class Music(commands.Cog):
         except AttributeError:
             pass
         
-    @slash_command(description="Resume current song")
+    @bridge.bridge_command(description="Resume current song")
     async def resume(self, ctx):
         try:
             player = self.get_node_player(ctx)
@@ -65,7 +65,7 @@ class Music(commands.Cog):
         except AttributeError:
             pass
     
-    @slash_command(description="Play a song")
+    @bridge.bridge_command(description="Play a song")
     async def play(self, ctx, song: str):
         player = self.get_node_player(ctx)
         try:
@@ -81,12 +81,12 @@ class Music(commands.Cog):
         self.requester = ctx.author
         await self.display_playing(ctx, player)
         
-    @slash_command(description="Display whats playing")
+    @bridge.bridge_command(description="Display whats playing")
     async def playing(self, ctx):
         player = self.get_node_player(ctx)
         await self.display_playing(ctx, player)
 
-    @slash_command(description="Change music volume")
+    @bridge.bridge_command(description="Change music volume")
     async def volume(self, ctx, volume: int):
         if volume > 100:
             volume = 100

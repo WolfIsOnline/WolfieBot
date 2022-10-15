@@ -39,6 +39,22 @@ async def on_ready():
     print(f"Bot is currently in {guilds} servers")
     print(f"{bot.user} has connected to discord")
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="becoming sentient"))
+    await update_notify()
+
+async def update_notify():
+    gd = GuildDatabase()
+    utils = Utils()
+    guild_count = 0
+    for c in bot.guilds:
+        guild_count += 1
+        if gd.get_guild_key(c.id, "update_notify") == "None":
+            gd.update_guild_key(c.id, "update_notify", False)
+        if gd.get_guild_key(c.id, "update_notify") == "False":
+            gd.update_guild_key(c.id, "update_notify", True)
+            embed = discord.Embed(title="New Update", description="Updated to 1.1.0-alpha", color=utils.DEFAULT_COLOR)
+            channel_id = db.get_guild_key(c.id, "modlog_channel")
+            channel = c.get_channel(int(channel_id))
+            await channel.send(embed=embed)
     
 async def changelog():
     utils = Utils()

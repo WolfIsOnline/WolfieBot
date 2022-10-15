@@ -1,4 +1,4 @@
-async def set_token():
+def set_token():
     
     token = input("Enter bot token: ")
     with open(".env", "w") as env:
@@ -6,7 +6,7 @@ async def set_token():
     print(f"{env.name} written")    
     await set_database()
     
-async def set_database():
+def set_database():
     database = input("Enter MongoDB connection: ")
     with open("./database/.env", "w") as env:
         env.write(f"MONGODB_CONNECTION=\"{database}\"")

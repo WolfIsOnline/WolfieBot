@@ -10,6 +10,7 @@ currency_name = "Eurodollar"
 currency_abbr = "ecu"
 currency_symbol = "§"
 ud = UserDatabase()
+BANKING_ICON = "https://i.imgur.com/pDzfl95.gif"
 
 
 class Economy(commands.Cog):
@@ -58,7 +59,7 @@ class Economy(commands.Cog):
             balance = int(ud.get_user_key(ctx.author.id, "bank_balance"))
         except:
             balance = 0
-        embed = discord.Embed(title="Nocturnia Bank", description=f"Available Balance: {currency_symbol}{balance:,}", color=self.utils.DEFAULT_COLOR)
+        embed = discord.Embed(title="Nocturnia Bank", description=f"Available Balance: **{currency_symbol}{balance:,}**", color=self.utils.DEFAULT_COLOR)
         embed.set_author(name=ctx.author, icon_url=ctx.author.display_avatar)
         embed.set_thumbnail(url=ctx.author.display_avatar)
         transactions = ud.get_transaction(ctx.author.id)
@@ -77,7 +78,7 @@ class Economy(commands.Cog):
                 amount = int(c["amount"])
                 reason = c["reason"]
                 embed.add_field(name=c["date"],
-                                value=f"```{reason}\t\t\t\t\t\t\t\t\t{sign}{currency_symbol}{amount:,} ```",
+                                value=f"```{reason}\n{sign}{currency_symbol}{amount:,} ```",
                                 inline=False)
         else:
             embed.add_field(name=f"No recent transactions", value="Recent transactions will show up here", inline=False)

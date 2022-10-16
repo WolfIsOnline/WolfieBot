@@ -9,8 +9,8 @@ from classes.utils import Utils
 
 db = GuildDatabase()
 
-REMOVE_COLOR = discord.Color.red()
-ADDITION_COLOR = discord.Color.from_rgb(255, 255, 255)
+REMOVE_COLOR = discord.Color.from_rgb(255, 255, 255)
+ADDITION_COLOR = discord.Color.green()
 CHANGE_COLOR = discord.Color.teal()
 IMPORTANT_COLOR = discord.Color.red()
 
@@ -59,7 +59,7 @@ class ModLogs(commands.Cog):
     @commands.Cog.listener()
     async def on_member_unban(self, guild, user):
         unban_log = await guild.audit_logs(limit=1, action=discord.AuditLogAction.unban).flatten()
-        embed = discord.Embed(title="User Unbanned", color=ADDITION_COLOR)
+        embed = discord.Embed(title="User Unbanned", color=REMOVE_COLOR)
         embed.add_field(name="User", value=user, inline=True)
         embed.add_field(name="Moderator", value=unban_log[0].user, inline=True)
         embed.add_field(name="Reason", value=unban_log[0].reason, inline=False)

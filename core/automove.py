@@ -37,8 +37,12 @@ class AutoMove(commands.Cog):
             new_id = after.channel.id
             if str(new_id) == str(auto_id):
                 source_channel = self.bot.get_channel(int(auto_id))
+                if member.nick is None:
+                    room_name = member.name
+                else:
+                    room_name = member.nick
                 channel = await member.guild.create_voice_channel(
-                    f"{member.nick}'s Room",
+                    f"{room_name}'s Room",
                     reason="user requested",
                     category=source_channel.category,
                     bitrate=source_channel.bitrate,

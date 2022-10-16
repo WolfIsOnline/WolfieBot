@@ -78,7 +78,7 @@ class Economy(commands.Cog):
                 amount = int(c["amount"])
                 reason = c["reason"]
                 embed.add_field(name=c["date"],
-                                value=f"```{reason}\n{sign}{currency_symbol}{amount:,} ```",
+                                value=f"```{reason}\t\t\t\t\t\t\t\t\t{sign}{currency_symbol}{amount:,}```",
                                 inline=False)
         else:
             embed.add_field(name=f"No recent transactions", value="Recent transactions will show up here", inline=False)

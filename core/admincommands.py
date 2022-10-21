@@ -75,9 +75,8 @@ class AdminCommands(commands.Cog):
             return
         
         guild_id = ctx.author.guild.id
-        channel = self.bot.get_channel(gd.get_guild_key(guild_id, "quotes_channel"))
-        message = await channel.fetch_message(int(message_id))
-        await self.quotes.add_quote(guild_id, message)
+        message = await ctx.fetch_message(int(message_id))
+        await self.quotes.add_quote(guild_id, message.content)
         await ctx.respond("Done", ephemeral=True)
         
     @admin.command(description="Add auto role to list")

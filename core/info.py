@@ -16,7 +16,7 @@ class Info(commands.Cog):
         python_version = sys.version
         pycord = "development version"
         creator = "WolfIsOnline#6677"
-        bot_version = "1.1.1-alpha"
+        bot_version = "1.1.2-alpha"
         info = discord.Embed(color=self.utils.DEFAULT_COLOR)
         info.set_author(name="Wolfie#1704", icon_url="https://cdn.discordapp.com/avatars/1021246946649849867/118da25b10cf765d4472c4664df8dd63.png?size=1024")
         info.add_field(name="Bot created by", value=creator)

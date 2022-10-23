@@ -3,22 +3,42 @@ import discord
 import os
 
 from dotenv import load_dotenv, find_dotenv
+from discord.ext import commands
 from rich.progress import track
-from core.music import *
 from discord.ext import bridge
 from discord.ext.bridge import BridgeContext
 from database.database import GuildDatabase
-from core.info import Info
+from cogs.info import Info
+from classes.utils import Utils
 
 
 bot = bridge.Bot(command_prefix=".", intents=discord.Intents.all(), help_command=None)
 
 
 db = GuildDatabase()
-def load_all():
-    for filename in track(os.listdir('./core'), description="loading core"):
-        if filename.endswith('.py'):
-            bot.load_extension(f'core.{filename[:-3]}')
+def load_cogs():
+    cogs = [
+        "cogs.admincommands",
+        "cogs.automove",
+        "cogs.autorole",
+        "cogs.dev",
+        "cogs.economy",
+        "cogs.usercommands",
+        "cogs.info",
+        "cogs.modlogs",
+        "cogs.music",
+        "cogs.nocturnia",
+        "cogs.ownercommands",
+        "cogs.patches",
+        "cogs.polls",
+        "cogs.quotes",
+        "cogs.simpleembed",
+        "cogs.welcome",
+        "cogs.crime.heist"
+    ]
+    for c in cogs:
+        bot.load_extension(c)
+        print(f"{c} extension loaded")
 
 
 @bot.event
@@ -73,6 +93,6 @@ async def changelog():
         print(f"changelog sent to {guild} {c + 1}/{guild_count}")
 
 
-load_all()
+load_cogs()
 load_dotenv(find_dotenv())
 bot.run(os.environ.get("TOKEN"))

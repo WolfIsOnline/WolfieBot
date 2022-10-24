@@ -116,7 +116,7 @@ class ModLogs(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
-        if before.author.bot:
+        if before.author.bot or before.content == after.content:
             return
         await self.send_msg_log(before, "Message was edited", CHANGE_COLOR, after.content)
 

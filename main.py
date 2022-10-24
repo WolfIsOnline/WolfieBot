@@ -64,6 +64,8 @@ async def on_ready():
 async def update_notify():
     gd = GuildDatabase()
     utils = Utils()
+    info = Info(bot)
+    version = info.BOT_VERSION
     guild_count = 0
     for c in bot.guilds:
         guild_count += 1
@@ -71,7 +73,7 @@ async def update_notify():
             gd.update_guild_key(c.id, "update_notify", False)
         if gd.get_guild_key(c.id, "update_notify") == "False":
             gd.update_guild_key(c.id, "update_notify", True)
-            embed = discord.Embed(title="New Update", description="Updated to 1.1.2-alpha", color=utils.DEFAULT_COLOR)
+            embed = discord.Embed(title="New Update", description=f"Updated to {version}", color=utils.DEFAULT_COLOR)
             channel_id = db.get_guild_key(c.id, "modlog_channel")
             channel = c.get_channel(int(channel_id))
             await channel.send(embed=embed)

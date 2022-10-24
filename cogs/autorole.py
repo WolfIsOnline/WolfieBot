@@ -4,8 +4,7 @@ import asyncio
 from discord.ext import commands
 from database.database import GuildDatabase
 from discord.commands import slash_command
-
-from core.modlogs import ModLogs
+from cogs.modlogs import ModLogs
 
 gd = GuildDatabase()
 KEY_ID = "autoroles"

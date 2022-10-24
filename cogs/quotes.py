@@ -27,16 +27,17 @@ class Quotes(commands.Cog):
                     size += 1
                     log.write(i.content + "\n")
 
-    async def add_quote(self, guild_id, quote):
+    async def add_quote(self, guild_id, message):
+        contents = message.content
         channel = self.bot.get_channel(int(gd.get_guild_key(guild_id, "quotes_channel")))
         size = 0
         with open("quotes.log", "a") as log:
-            if quote.startswith('\"') or quote.startswith('“'):
+            if contents.startswith('\"') or message.startswith('“'):
                 size += 1
-                log.write(quote + "\n")
+                log.write(contents + "\n")
                 with open("quotes.log", "r") as log_read:
                     temp = str(len(log_read.readlines()))    
-                await self.utils.notify_channel(channel, "Quote Added", quote, f"Quote #{temp}")
+                await self.utils.notify_channel(channel, "Quote Added", contents, f"Quote #{temp}")
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -45,7 +46,7 @@ class Quotes(commands.Cog):
         
         guild_id = message.guild.id
         if message.channel.id == int(gd.get_guild_key(message.guild.id, "quotes_channel")):
-            await self.add_quote(guild_id, message.content)
+            await self.add_quote(guild_id, message)
 
     @slash_command(description="Gets a random quote submitted by Members")
     async def quote(self, ctx):

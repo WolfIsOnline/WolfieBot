@@ -4,6 +4,7 @@ import requests
 from discord.ext import commands
 from classes.utils import Utils
 from database.database import GuildDatabase
+from rich import print_json
 
 gd = GuildDatabase()
 FREE_GAMES_KEY = "free_games_channel"
@@ -30,18 +31,12 @@ class Patches(commands.Cog):
         
         if message.author.id == self.bot.user.id:
             return
-
-        original = message.embeds
-        data = None
-        for m in original:
-            data = m.to_dict()
-            
-        try:
-            if data["title"] == "PatchBot can now notify you of free games" or data["title"] == "Pinned Updates with PatchBot Premium":
-                return
-            
-            title = data["title"]
-        except KeyError: title = ""
+        
+        # Filters out the annoying ad placed by PatchBot
+        for embeds in message.embeds:
+            content = embeds.to_dict()
+            if content["author"]["name"] != "This update is brought to you by:":
+                data = content
         
         try:    
             request = requests.get(data["url"], allow_redirects=False)
@@ -50,10 +45,15 @@ class Patches(commands.Cog):
             
         except KeyError: request, request_status_code, request_headers = ""
         
+        try: title = data["title"]
+        except KeyError: title = ""
+        
         try: description = data["description"]
         except KeyError: description = ""
         
-        try: author = data["author"]["name"]
+        try:
+            
+            author = data["author"]["name"]
         except KeyError: author = ""
         
         try: thumbnail = data["thumbnail"]["url"]

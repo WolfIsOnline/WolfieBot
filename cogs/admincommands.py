@@ -3,13 +3,13 @@ import discord
 from discord.ext import commands, bridge
 from discord.commands import slash_command
 from discord import SlashCommandGroup
-from core.automove import AutoMove
-from core.modlogs import ModLogs
-from core.welcome import Welcome
-from core.economy import Economy
-from core.quotes import Quotes
-from core.autorole import AutoRole
-from core.simpleembed import SimpleEmbed
+from cogs.automove import AutoMove
+from cogs.modlogs import ModLogs
+from cogs.welcome import Welcome
+from cogs.economy import Economy
+from cogs.quotes import Quotes
+from cogs.autorole import AutoRole
+from cogs.simpleembed import SimpleEmbed
 from classes.utils import Utils
 from database.database import GuildDatabase
 
@@ -75,8 +75,9 @@ class AdminCommands(commands.Cog):
             return
         
         guild_id = ctx.author.guild.id
-        message = await ctx.fetch_message(int(message_id))
-        await self.quotes.add_quote(guild_id, message.content)
+        channel = self.bot.get_channel(gd.get_guild_key(guild_id, "quotes_channel"))
+        message = await channel.fetch_message(int(message_id))
+        await self.quotes.add_quote(guild_id, message)
         await ctx.respond("Done", ephemeral=True)
         
     @admin.command(description="Add auto role to list")
@@ -116,13 +117,14 @@ class AdminCommands(commands.Cog):
             embed.add_field(name="Modlog Channel: ", value=channel.mention)
         except ValueError:
             embed.add_field(name="Modlog Channel: ", value="Not set")
+        except AttributeError: pass
         
         try:
             channel_id = int(gd.get_guild_key(guild_id, "automove_source"))
             channel = self.bot.get_channel(channel_id)
             embed.add_field(name="Autoroom Channel: ", value=channel.mention)
-        except ValueError:
-            embed.add_field(name="Autoroom Channel: ", value="Not set")
+        except ValueError: embed.add_field(name="Autoroom Channel: ", value="Not set")
+        except AttributeError: pass
             
         try:
             role_id = int(gd.get_guild_key(guild_id, "mod_id"))
@@ -130,6 +132,7 @@ class AdminCommands(commands.Cog):
             embed.add_field(name="Mod Role: ", value=role.mention)
         except ValueError:
             embed.add_field(name="Mod Role: ", value="Not set")
+        except AttributeError: pass
             
         try:
             channel_id = int(gd.get_guild_key(guild_id, "welcome_channel"))
@@ -137,6 +140,7 @@ class AdminCommands(commands.Cog):
             embed.add_field(name="Welcome Channel: ", value=channel.mention)
         except ValueError:
             embed.add_field(name="Welcome Channel: ", value="Not set")
+        except AttributeError: pass
             
         try:
             role = []
@@ -149,6 +153,7 @@ class AdminCommands(commands.Cog):
             embed.add_field(name="Auto Roles: ", value=role)
         except ValueError:
             embed.add_field(name="Auto Roles: ", value="None set")
+        except AttributeError: pass
 
         await ctx.respond(embed=embed)
         

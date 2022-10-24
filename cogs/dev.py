@@ -6,10 +6,10 @@ from discord.ext.commands import context
 from discord import SlashCommandGroup
 from classes.utils import Utils
 from database.database import GuildDatabase
-from core.quotes import Quotes
-from core.nocturnia import Nocturnia
-from core.patches import Patches
-from core.economy import Economy
+from cogs.quotes import Quotes
+from cogs.nocturnia import Nocturnia
+from cogs.patches import Patches
+from cogs.economy import Economy
 from discord.ext.pages import Paginator, Page
 
 
@@ -87,6 +87,13 @@ class Dev(commands.Cog):
     async def check(self, ctx):
         if await self.utils.is_dev(ctx) is False: return
         await ctx.respond(f"{ctx.author.mention}")
+        
+    @dev.command()
+    async def displayembed(self, ctx):
+        message = await ctx.fetch_message(1032671702926229554)
+        for embed in message.embeds:
+            await ctx.respond(embed.to_dict())
+        
 
 def setup(bot):
     bot.add_cog(Dev(bot))

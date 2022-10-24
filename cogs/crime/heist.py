@@ -8,7 +8,7 @@ from discord.commands import slash_command
 from database.database import GuildDatabase
 from classes.utils import Utils
 from classes.transactions import Transactions
-from core.nocturnia import Nocturnia
+from cogs.nocturnia import Nocturnia
 
 gd = GuildDatabase()
 
@@ -21,11 +21,18 @@ class Heist(commands.Cog):
         self.game = "heist"
         self.chance = 5
         self.transactions = Transactions()
+        self.heist_data = {
+            "guild_id" : None,
+            "players" : [],
+            "dead_players" : [],
+            "alive_players" : []
+        }
+        self.heist_data
         self.players = []
         self.dead = []
         self.alive = []
 
-    @commands.cooldown(1, 3600, commands.BucketType.user)
+    #@commands.cooldown(1, 3600, commands.BucketType.user)
     @bridge.bridge_command(description="Rob someone")
     async def heist(self, ctx, user: discord.User):
 
@@ -36,7 +43,6 @@ class Heist(commands.Cog):
         running = gd.get_guild_key(guild_id, "heist_running")
         if running == "None":
             running = False
-            print("nothing is running, starting game")
         else:
             running = bool(gd.get_guild_key(guild_id, "heist_running"))
         if running is True:
@@ -45,7 +51,6 @@ class Heist(commands.Cog):
         if player_id == target_id:
             return await self.utils.notify(ctx, "Can't Start", "You can't start a heist on yourself", "Heist")
 
-        print(f"heist has started in {guild_id}")
         start_cost = 10000
         target_limit = 5000
 
@@ -62,6 +67,7 @@ class Heist(commands.Cog):
         gd.update_guild_key(guild_id, "heist_running", True)
         gd.update_guild_key(guild_id, "heist_can_join", True)
         gd.update_guild_key(guild_id, "heist_target", target_id)
+        gd.append_guild_key_array(guild_id, "players", player_id)
         self.players.append(player_id)
 
         screen = discord.Embed(title="Heist Started",
@@ -125,14 +131,15 @@ class Heist(commands.Cog):
         await self.end_heist(ctx, target_id)
 
     async def end_heist(self, ctx, target_id):
+        guild_id = ctx.author.guild.id,
         self.players.clear()
         self.alive.clear()
         self.dead.clear()
-        gd.delete_guild_key(ctx.author.guild.id, "heist_running", True)
-        gd.delete_guild_key(ctx.author.guild.id, "heist_can_join", False)
-        gd.delete_guild_key(ctx.author.guild.id, "heist_target", target_id)
+        gd.delete_guild_key_complete(guild_id, "players")
+        gd.delete_guild_key(guild_id, "heist_running", True)
+        gd.delete_guild_key(guild_id, "heist_can_join", False)
+        gd.delete_guild_key(guild_id, "heist_target", target_id)
         self.chance = 5
-        print(f"heist has ended on {ctx.author.guild.id}")
 
     def get_stolen_amount(self, amount, percentage):
         return int(amount * percentage / 100)
@@ -167,6 +174,7 @@ class Heist(commands.Cog):
                                            f"You need at least {cost:,} Eurodollar's to join the heist", "Heist")
 
         self.players.append(player_id)
+        gd.append_guild_key_array(guild_id, "players", player_id)
         await self.transactions.withdraw(player_id, cost, "heist contribution", "anonymous")
 
         self.chance += 10
@@ -179,7 +187,6 @@ class Heist(commands.Cog):
             target = 0
         else:
             target = int(gd.get_guild_key(guild_id, "heist_target"))
-        print(target)
         can_join = gd.get_guild_key(guild_id, "heist_can_join")
         if can_join == "None":
             can_join = False

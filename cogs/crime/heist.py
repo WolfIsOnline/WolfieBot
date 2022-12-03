@@ -26,6 +26,7 @@ class Heist(commands.Cog):
         self.alive = []
 
     @bridge.bridge_command(description="Rob someone")
+    @commands.cooldown(1, 3600, commands.BucketType.user)
     async def heist(self, ctx, user: discord.User):
 
         player_id = ctx.author.id

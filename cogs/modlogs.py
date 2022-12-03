@@ -91,27 +91,24 @@ class ModLogs(commands.Cog):
         # Role removed
         for roles in before.roles:
             if roles not in after.roles:
-                entry = await before.guild.audit_logs(limit=1, action=discord.AuditLogAction.member_update).flatten()
+                entry = await before.guild.audit_logs(limit=1, action=discord.AuditLogAction.member_role_update).flatten()
                 embed = discord.Embed(title="Role Removed", description=roles.mention, color=REMOVE_COLOR)
                 embed.add_field(name="Updated by", value=entry[0].user, inline=True)
                 embed.set_author(name=after, icon_url=after.display_avatar)
                 embed.set_footer(text=f"Account ID: {after.id}")
-
                 channel = int(db.get_guild_key(before.guild.id, "modlog_channel"))
                 await self.bot.get_channel(channel).send(embed=embed)
                 
         # Role added
         for roles in after.roles:
             if roles not in before.roles:
-                entry = await before.guild.audit_logs(limit=1, action=discord.AuditLogAction.member_update).flatten()
+                entry = await before.guild.audit_logs(limit=1, action=discord.AuditLogAction.member_role_update).flatten()
                 embed = discord.Embed(title="Role Added", description=roles.mention, color=ADDITION_COLOR)
                 embed.add_field(name="Updated by", value=entry[0].user, inline=True)
                 embed.set_author(name=after, icon_url=after.display_avatar)
                 embed.set_footer(text=f"Account ID: {after.id}")
                 channel = int(db.get_guild_key(before.guild.id, "modlog_channel"))
-
                 await self.bot.get_channel(channel).send(embed=embed)
-                    
             
 
     @commands.Cog.listener()

@@ -10,6 +10,7 @@ from cogs.quotes import Quotes
 from cogs.nocturnia import Nocturnia
 from cogs.patches import Patches
 from cogs.economy import Economy
+from cogs.info import Info
 from discord.ext.pages import Paginator, Page
 
 
@@ -25,6 +26,7 @@ class Dev(commands.Cog):
         self.nocturnia = Nocturnia(bot)
         self.patches = Patches(bot)
         self.economy = Economy(bot)
+        self.info = Info(bot)
 
     @bridge.bridge_group()
     async def dev(self, ctx): pass
@@ -93,6 +95,17 @@ class Dev(commands.Cog):
         message = await ctx.fetch_message(1032671702926229554)
         for embed in message.embeds:
             await ctx.respond(embed.to_dict())
+            
+    @dev.command()
+    async def push_changelog(self, ctx):
+        with open("changelog.txt", "r") as log:
+            changes = log.read()
+        embed = discord.Embed(title=f"Updated to {self.info.BOT_VERSION}", description=changes, color=self.utils.DEFAULT_COLOR)
+        embed.set_footer(text="Wolfie is now in 5 servers")
+        channel_id = gd.get_guild_key(ctx.author.guild.id, "modlog_channel")
+        channel = ctx.author.guild.get_channel(int(channel_id))
+        await channel.send(embed=embed)
+        await ctx.respond("pushed!", ephemeral=True)
         
 
 def setup(bot):

@@ -23,7 +23,7 @@ class Quotes(commands.Cog):
         size = 0
         with open("quotes.log", "w") as log:
             for i in quotes:
-                if i.content.startswith('\"') or i.content.startswith('“'):
+                if i.content.startswith('"') or i.content.startswith('“'):
                     size += 1
                     log.write(i.content + "\n")
 
@@ -32,7 +32,7 @@ class Quotes(commands.Cog):
         channel = self.bot.get_channel(int(gd.get_guild_key(guild_id, "quotes_channel")))
         size = 0
         with open("quotes.log", "a") as log:
-            if contents.startswith('\"') or message.startswith('“'):
+            if contents.startswith('"') or contents.startswith('“'):
                 size += 1
                 log.write(contents + "\n")
                 with open("quotes.log", "r") as log_read:

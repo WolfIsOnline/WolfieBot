@@ -1,3 +1,0 @@
-* updated to python 3.11.0
-* fixed bug with logs where incorrect name would be displayed when user role is updated
-* fixed bug in quotes where iphone users couldn't add quotes

@@ -12,7 +12,7 @@ load_dotenv(find_dotenv())
 log = logging.getLogger(__name__)
 bot = lightbulb.BotApp(token=os.environ.get("TOKEN"), prefix="!", intents=hikari.Intents.ALL, default_enabled_guilds=1021249050445611009)
 
-core = ["quotes", "rooms", "logs"]
+core = ["quotes", "rooms", "logs", "welcome"]
 for c in core:
     bot.load_extensions(f"wolfiebot.core.{c}")
 

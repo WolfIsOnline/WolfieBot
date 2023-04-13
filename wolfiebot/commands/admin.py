@@ -53,6 +53,30 @@ async def set_welcome(ctx: lightbulb.Context):
     channel = ctx.options.channel
     db.edit_guild_data(ctx.get_guild().id, "welcome_channel", channel.id)
     await ctx.respond(f"Welcome channel set to {channel.mention}")
+    
+@plugin.command
+@lightbulb.option("role", "Select the role", type=hikari.Role)
+@lightbulb.command("addrole", "Adds autorole to list")
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+async def add_role(ctx: lightbulb.Context):
+    role = ctx.options.role
+    roles = db.read_guild_data(ctx.get_guild().id, "autoroles")
+    if roles is not None:
+        for _role in roles:
+            if _role == role.id:
+                await ctx.respond(f"{role.mention} has already been added!")
+                return
+    db.append_guild_data(ctx.get_guild().id, "autoroles", role.id)
+    await ctx.respond(f"{role.mention} added!")
+    
+@plugin.command
+@lightbulb.option("role", "Select the role", type=hikari.Role)
+@lightbulb.command("removerole", "Removes autorole from list")
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+async def remove_role(ctx: lightbulb.Context):
+    role = ctx.options.role
+    db.remove_guild_data_array(ctx.get_guild().id, "autoroles", role.id)
+    await ctx.respond(f"{role.mention} removed!")
 
 def load(bot: lightbulb.BotApp):
     bot.add_plugin(plugin)

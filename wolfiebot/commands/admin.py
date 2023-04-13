@@ -21,7 +21,7 @@ async def set_quotes(ctx: lightbulb.Context):
     
 @plugin.command
 @lightbulb.option("channel", "Select the voice channel", type=hikari.GuildVoiceChannel, required=True)
-@lightbulb.command("setroom", "Set parent room channel")
+@lightbulb.command("setroom", "Sets parent room channel")
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
 async def set_room(ctx: lightbulb.Context):
     channel = ctx.options.channel
@@ -30,7 +30,7 @@ async def set_room(ctx: lightbulb.Context):
     
 @plugin.command
 @lightbulb.option("channel", "Select the logs channel", type=hikari.TextableChannel, required=True)
-@lightbulb.command("setlogs", "Set the logs channel")
+@lightbulb.command("setlogs", "Sets the logs channel")
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
 async def set_logs(ctx: lightbulb.Context):
     channel = ctx.options.channel
@@ -44,6 +44,15 @@ async def set_logs(ctx: lightbulb.Context):
 async def save_quote(ctx: lightbulb.Context):
     message = await plugin.bot.rest.fetch_message(ctx.channel_id, ctx.options.message_id)
     await wolfiebot.core.quotes.commit(message.content, message.author.id, ctx.get_guild().id, ctx)
+    
+@plugin.command
+@lightbulb.option("channel", "Select the welcome channel", type=hikari.TextableChannel, required=True)
+@lightbulb.command("setwelcome", "Sets the welcome channel")
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+async def set_welcome(ctx: lightbulb.Context):
+    channel = ctx.options.channel
+    db.edit_guild_data(ctx.get_guild().id, "welcome_channel", channel.id)
+    await ctx.respond(f"Welcome channel set to {channel.mention}")
 
 def load(bot: lightbulb.BotApp):
     bot.add_plugin(plugin)

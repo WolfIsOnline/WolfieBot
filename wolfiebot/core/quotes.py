@@ -7,7 +7,7 @@ import re
 from wolfiebot.database.database import Database
 
 log = logging.getLogger(__name__)
-plugin = lightbulb.Plugin("commands.quotes")
+plugin = lightbulb.Plugin("core.quotes")
 db = Database()
 
 def validate(quote) -> bool:

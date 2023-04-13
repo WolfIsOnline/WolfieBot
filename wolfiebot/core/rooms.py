@@ -7,7 +7,7 @@ from hikari.permissions import Permissions
 from wolfiebot.database.database import Database
 
 log = logging.getLogger(__name__)
-plugin = lightbulb.Plugin("commands.rooms")
+plugin = lightbulb.Plugin("core.rooms")
 db = Database()
 
 @plugin.listener(hikari.VoiceStateUpdateEvent)

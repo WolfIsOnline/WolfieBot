@@ -6,7 +6,7 @@ import lightbulb
 from wolfiebot.database.database import Database
 
 log = logging.getLogger(__name__)
-plugin = lightbulb.Plugin("commands.logs")
+plugin = lightbulb.Plugin("core.welcome")
 db = Database()
 
 @plugin.listener(hikari.MemberCreateEvent)

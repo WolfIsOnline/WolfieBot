@@ -7,7 +7,7 @@ import pytz
 from wolfiebot.database.database import Database
 
 log = logging.getLogger(__name__)
-plugin = lightbulb.Plugin("commands.logs")
+plugin = lightbulb.Plugin("core.logs")
 db = Database()
 
 time_format = "%b %m, %Y @ %I:%M:%S%p %Z"

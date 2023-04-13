@@ -42,7 +42,7 @@ class Database:
     def append_guild_data(self, guild_id, name, value):
         document = self.client["wolfie"]["guilds"]
         document.find_one_and_update({"_id" : guild_id}, {"$push" : { name : value }}, upsert=True)   
-        
+         
     def remove_guild_data_array(self, guild_id, name, value):
         document = self.client["wolfie"]["guilds"]
         document.find_one_and_update({"_id" : guild_id}, {"$pull" : { name : value }}, upsert=True)   
@@ -52,6 +52,9 @@ class Database:
         raw_data = document.find({"_id" : guild_id}, {})
         for data in raw_data:
             if name is not None:
+                is_present = name in data
+                if is_present is False:
+                    return None
                 return data[name]
         return raw_data
     

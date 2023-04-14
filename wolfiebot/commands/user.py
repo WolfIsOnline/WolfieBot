@@ -2,6 +2,7 @@ import hikari
 import lightbulb
 import logging
 import wolfiebot
+import random
 
 from lightbulb import commands
 from wolfiebot.core.bank import Bank
@@ -35,12 +36,15 @@ async def avatar(ctx: lightbulb.Context):
 @lightbulb.command("quote", "Get a random quote")
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
 async def quote(ctx: lightbulb.Context):
-    
-    user = await plugin.bot.rest.fetch_user("257646822925926410")
-    log.info(user)
-    quote = db.read_guild_data(ctx.get_guild().id, "quotes")
-    log.info(quote[0]["quote"])
-    await ctx.message.respond("hi")
+    quotes = db.read_guild_data(ctx.get_guild().id, "quotes")
+    quote_data = random.choice(quotes)
+    quote = quote_data["quote"]
+    if quote_data["quote_user"] != "Unknown":
+        quote_user = "<@" + quote_data["quote_user_id"] + ">"
+    else:
+        quote_user = "Unknown"
+        
+    await ctx.respond(f"\"{quote}\" - {quote_user}")
     
 def load(bot: lightbulb.BotApp):
     bot.add_plugin(plugin)

@@ -5,9 +5,11 @@ import wolfiebot
 
 from lightbulb import commands
 from wolfiebot.core.bank import Bank
+from wolfiebot.database.database import Database
 
 log = logging.getLogger(__name__)
 plugin = lightbulb.Plugin("commands.dev")
+db = Database()
 
 
 @plugin.command
@@ -27,6 +29,17 @@ async def deposit(ctx: lightbulb.Context):
 async def withdraw(ctx: lightbulb.Context):
     amount = Bank().withdraw(ctx.author.id, ctx.options.amount)
     await ctx.respond(amount)
+    
+@plugin.command
+@lightbulb.add_checks(lightbulb.owner_only)
+@lightbulb.option("status", "Status Messsage", type=str, required=True)
+@lightbulb.command("setstatus", "Set bot status")
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+async def set_status(ctx: lightbulb.Context):
+    await plugin.bot.update_presence(status=hikari.Status.ONLINE, activity=hikari.Activity( name=ctx.options.status, type=hikari.ActivityType.PLAYING,),)
+    db.edit_user_data(plugin.bot.get_me().id, "status", ctx.options.status)
+    await ctx.respond("presence updated!")
+    
 
 def load(bot: lightbulb.BotApp):
     bot.add_plugin(plugin)

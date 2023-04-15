@@ -15,7 +15,7 @@ db = Database()
 
 
 @plugin.command
-@lightbulb.option("user", "Select the member", type=hikari.User, required=False)
+@lightbulb.option("user", "Select a member", type=hikari.User, required=False)
 @lightbulb.command("avatar", "Get users avatar", aliases="pfp")
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
 async def avatar(ctx: lightbulb.Context):
@@ -33,14 +33,23 @@ async def avatar(ctx: lightbulb.Context):
     await ctx.respond(embed)
     
 @plugin.command
+@lightbulb.option("user", "Select a member", type=hikari.User, required=False)
 @lightbulb.command("quote", "Get a random quote")
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
 async def quote(ctx: lightbulb.Context):
     quotes = db.read_guild_data(ctx.get_guild().id, "quotes")
-    quote_data = random.choice(quotes)
-    quote = quote_data["quote"]
-    if quote_data["quote_user"] != "Unknown":
-        quote_user = "<@" + quote_data["quote_user_id"] + ">"
+    sorted_quote_data = []
+    if ctx.options.user is not None:
+        for raw_quote_data in quotes:
+            if raw_quote_data["quote_user_id"] == str(ctx.options.user.id):
+                sorted_quote_data.append(raw_quote_data)
+    else:
+        sorted_quote_data = quotes
+        
+    random_quote = random.choice(sorted_quote_data)
+    quote = random_quote["quote"]
+    if random_quote["quote_user"] != "Unknown":
+        quote_user = "<@" + random_quote["quote_user_id"] + ">"
     else:
         quote_user = "Unknown"
         

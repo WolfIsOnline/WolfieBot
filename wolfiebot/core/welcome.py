@@ -14,7 +14,7 @@ async def member_join(event):
     member = event.user
     guild_id = event.guild_id
     guild = plugin.bot.cache.get_guild(guild_id)
-    embed = hikari.Embed(color=wolfiebot.DEFAULT_COLOR, title="Welcome to Nocturnal Gamers", description=f"Hi {member.mention}\n\n• **I hope you enjoy your stay!**\n\n• **Check out the following channels.**\n\n <a:ng_bluearrowright:996149975471902760> Get your roles from <#983869250768883722>\n\n<a:ng_bluearrowright:996149975471902760> Current free games <#967074827108245554>\n\n<a:ng_bluearrowright:996149975471902760> Newest <#973745210016280577>",)
+    embed = hikari.Embed(color=wolfiebot.DEFAULT_COLOR, title="Welcome to Nocturnal Gamers", description=f"Hi {member.mention}\n\n• **I hope you enjoy your stay!**\n\n• **Check out the following channels.**\n\n<a:ng_bluearrowright:996149975471902760> Current free games <#967074827108245554>\n\n<a:ng_bluearrowright:996149975471902760> Newest <#973745210016280577>",)
     embed.set_author(name=f"{guild}", icon=guild.icon_url)
     embed.set_thumbnail(member.display_avatar_url)
     try:

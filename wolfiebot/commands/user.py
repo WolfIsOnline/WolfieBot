@@ -26,11 +26,8 @@ async def avatar(ctx: lightbulb.Context):
     except AttributeError:
         user = ctx.author
         avatar_url = ctx.author.display_avatar_url
-        
-    embed = hikari.Embed(color=wolfiebot.DEFAULT_COLOR, title=user, description=f"{avatar_url}")
-    embed.set_image(avatar_url)
     
-    await ctx.respond(embed)
+    await ctx.respond(f"{avatar_url}")
     
 @plugin.command
 @lightbulb.option("user", "Select a member", type=hikari.User, required=False)

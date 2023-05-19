@@ -1,6 +1,5 @@
 import logging
 import os
-import wolfiebot
 
 from pymongo import ASCENDING, MongoClient
 from dotenv import load_dotenv, find_dotenv
@@ -22,6 +21,16 @@ class Database:
     def append_user_data(self, user_id, name, value):
         document = self.client["wolfie"]["users"]
         document.find_one_and_update({"_id" : user_id}, {"$push" : { name : value }}, upsert=True)
+
+    # this is to long but is very specific
+    # never use this unless you have no choice
+    def remove_user_data_array_by_index(self, user_id, name, index):
+        document = self.client["wolfie"]["users"]
+        
+        # this is a work around for removing an array by the index
+        # this can cause some future issues but for now it works
+        document.find_one_and_update({"_id" : user_id}, {"$unset": {f"{name}.{index}": 1}}, upsert=True)
+        document.find_one_and_update({"_id" : user_id}, {"$pull" : {f"{name}" : None}}, upsert=True)
         
     def read_user_data(self, user_id, name=None):
         document = self.client["wolfie"]["users"]

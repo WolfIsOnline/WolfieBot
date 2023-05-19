@@ -18,7 +18,7 @@ db = Database()
 async def start(event):
     await bot.update_presence(status=hikari.Status.ONLINE, activity=hikari.Activity( name=db.read_user_data(bot.get_me().id, "status"), type=hikari.ActivityType.PLAYING,),)
 
-core = ["quotes", "rooms", "logs", "welcome", "autorole"]
+core = ["quotes", "rooms", "logs", "welcome", "autorole", "chat"]
 for c in core:
     bot.load_extensions(f"wolfiebot.core.{c}")
 

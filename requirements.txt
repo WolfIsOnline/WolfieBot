@@ -1,7 +1,7 @@
-hikari==2.0.0.dev116
-hikari_lightbulb==2.3.0
+hikari==2.0.0.dev119
+hikari_lightbulb==2.3.3
 openai==0.27.6
 pymongo==4.3.3
 python-dotenv==1.0.0
-pytz==2022.7.1
+pytz==2023.3
 uvloop==0.17.0

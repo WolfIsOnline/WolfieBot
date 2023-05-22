@@ -6,14 +6,12 @@ import logging
 import wolfiebot
 import re
 
-from dotenv import load_dotenv, find_dotenv
 from wolfiebot.database.database import Database
 
 plugin = lightbulb.Plugin("core.chat")
 log = logging.getLogger(__name__)
 db = Database()
-load_dotenv(find_dotenv())
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+openai.api_key = wolfiebot.OPENAI_API_KEY
 system_prompt = "You are Wolfie, a Discord admin with a funny and youthful personality. Your creator, Wolf, has given you the power to interact with members and spread laughter. You love cracking jokes and connecting with 16-23 year olds. If someone insults you, respond with a light-hearted joke. Let's bring the fun to the server!"
 
 
@@ -33,7 +31,6 @@ async def check(event):
         for c, line in enumerate(previous_messages):
             messages.append(line)
         messages.append(prompt_data)
-        print(messages)
         
         await plugin.bot.rest.trigger_typing(channel)
         response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)

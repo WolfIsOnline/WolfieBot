@@ -1,18 +1,15 @@
 import logging
 import os
+import wolfiebot
 
 from pymongo import ASCENDING, MongoClient
-from dotenv import load_dotenv, find_dotenv
 
 log = logging.getLogger(__name__)
 
 class Database:
     
     def __init__(self):
-        load_dotenv(find_dotenv())
-        MONGODB_CONNECTION = os.environ.get("MONGODB_CONNECTION")
-        self.client = MongoClient(MONGODB_CONNECTION)
-        log.info("database connected")
+        self.client = MongoClient(wolfiebot.MONGODB_CONNECTION)
         
     def edit_user_data(self, user_id, name, value):
         document = self.client["wolfie"]["users"]

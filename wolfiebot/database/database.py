@@ -35,7 +35,7 @@ class Database:
         for data in raw_data:
             if name is not None:
                 return data[name]
-        return raw_data
+        return None
         
     def delete_user_data(self, user_id, name):
         document = self.client["wolfie"]["users"]

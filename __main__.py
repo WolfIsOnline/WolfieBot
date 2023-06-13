@@ -21,13 +21,17 @@ db = Database()
 async def start(event):
     await bot.update_presence(status=hikari.Status.ONLINE, activity=hikari.Activity(name=db.read_user_data(bot.get_me().id, "status"), type=hikari.ActivityType.PLAYING,),)
 
-core = ["quotes", "rooms", "logs", "welcome", "autorole", "chat", "voice"]
+core = ["quotes", "rooms", "logs", "welcome", "autorole", "chat"]
 for c in core:
     bot.load_extensions(f"wolfiebot.core.{c}")
 
 commands = ["user", "economy", "dev", "admin"]
 for c in commands:
     bot.load_extensions(f"wolfiebot.commands.{c}")
+    
+games = ["slots"]
+for c in games:
+    bot.load_extensions(f"wolfiebot.games.{c}")
         
 @bot.listen(hikari.ExceptionEvent)
 async def on_error(event: hikari.ExceptionEvent[EventT]) -> None:
@@ -39,7 +43,19 @@ async def on_command_error(event: lightbulb.CommandErrorEvent) -> None:
 
     if isinstance(exc, lightbulb.NotOwner):
         await event.context.respond("You do not have access to this command")
+        
+def configure():
+    env = open(find_dotenv())
+    lines = env.readlines()
+    checks = []
+    for index, line in enumerate(lines):
+        if line is None:
+            checks.append(False)
+        else:
+            checks.append(True)
+        
     
 if __name__ == "__main__":
+    configure()
     uvloop.install()
     bot.run()

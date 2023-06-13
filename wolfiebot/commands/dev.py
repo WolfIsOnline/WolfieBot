@@ -16,24 +16,6 @@ db = Database()
 @lightbulb.command("dev", "dev commands")
 @lightbulb.implements(lightbulb.PrefixCommandGroup, lightbulb.SlashCommandGroup)
 async def dev(ctx: lightbulb.Context): pass
-
-@dev.child
-@lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.option("amount", "Amount to deposit", type=int, required=True)
-@lightbulb.command("deposit", "Deposit from member")
-@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
-async def deposit(ctx: lightbulb.Context):
-    Bank().deposit(ctx.author.id, ctx.options.amount)
-    await ctx.respond(ctx.options.amount)
-    
-@dev.child
-@lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.option("amount", "Amount to withdraw", type=int, required=True)
-@lightbulb.command("withdraw", "Withdraw from member")
-@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
-async def withdraw(ctx: lightbulb.Context):
-    amount = Bank().withdraw(ctx.author.id, ctx.options.amount)
-    await ctx.respond(amount)
     
 @dev.child
 @lightbulb.add_checks(lightbulb.owner_only)

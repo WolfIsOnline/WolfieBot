@@ -34,6 +34,9 @@ class Database:
         raw_data = document.find({"_id" : user_id}, {})
         for data in raw_data:
             if name is not None:
+                is_present = name in data
+                if is_present is False:
+                    return None
                 return data[name]
         return None
         

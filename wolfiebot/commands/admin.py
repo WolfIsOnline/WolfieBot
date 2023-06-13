@@ -8,75 +8,93 @@ from wolfiebot.database.database import Database
 
 log = logging.getLogger(__name__)
 plugin = lightbulb.Plugin("commands.admin")
-db = Database()
+database = Database()
 
+# need to implement admin role
+#admin_role = database.read_guild_data(guild_id)
+
+# Admin Group
 @plugin.command
-@lightbulb.option("channel", "Select the channel", type=hikari.TextableChannel, required=True)
-@lightbulb.command("setquotes", "Set quotes channel")
-@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
-async def set_quotes(ctx: lightbulb.Context):
+@lightbulb.add_checks(lightbulb.owner_only)
+@lightbulb.command("admin", "admin commands")
+@lightbulb.implements(lightbulb.PrefixCommandGroup, lightbulb.SlashCommandGroup)
+async def admin(ctx: lightbulb.Context): pass
+
+@admin.child
+@lightbulb.add_checks(lightbulb.owner_only)
+@lightbulb.command("set", "set commands")
+@lightbulb.implements(lightbulb.PrefixSubGroup, lightbulb.SlashSubGroup)
+async def _set(ctx: lightbulb.Context): pass
+
+# Set Command Group
+@_set.child
+@lightbulb.option("channel", "Select the quotes channel", type=hikari.TextableChannel, required=True)
+@lightbulb.command("quotes", "Set quotes channel")
+@lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
+async def quotes(ctx: lightbulb.Context):
     channel = ctx.options.channel
-    db.edit_guild_data(ctx.get_guild().id, "quotes_channel", channel.id)
+    database.edit_guild_data(ctx.get_guild().id, "quotes_channel", channel.id)
     await ctx.respond(f"Quotes channel set to {channel.mention}")
     
-@plugin.command
+@_set.child
 @lightbulb.option("channel", "Select the voice channel", type=hikari.GuildVoiceChannel, required=True)
-@lightbulb.command("setroom", "Sets parent room channel")
-@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
-async def set_room(ctx: lightbulb.Context):
+@lightbulb.command("room", "Set parent room channel")
+@lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
+async def room(ctx: lightbulb.Context):
     channel = ctx.options.channel
-    db.edit_guild_data(ctx.get_guild().id, "autoroom_parent", channel.id)
-    await ctx.respond(f"Room parent channel set to {channel.mention}")
+    database.edit_guild_data(ctx.get_guild().id, "autoroom_parent", channel.id)
+    await ctx.respond(f"Parent channel set to {channel.mention}")
     
-@plugin.command
+@_set.child
 @lightbulb.option("channel", "Select the logs channel", type=hikari.TextableChannel, required=True)
-@lightbulb.command("setlogs", "Sets the logs channel")
-@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
-async def set_logs(ctx: lightbulb.Context):
+@lightbulb.command("logs", "Set logs channel")
+@lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
+async def logs(ctx: lightbulb.Context):
     channel = ctx.options.channel
-    db.edit_guild_data(ctx.get_guild().id, "logs_channel", channel.id)
+    database.edit_guild_data(ctx.get_guild().id, "logs_channel", channel.id)
     await ctx.respond(f"Logs channel set to {channel.mention}")
+    
+@_set.child
+@lightbulb.option("channel", "Select the welcome channel", type=hikari.TextableChannel, required=True)
+@lightbulb.command("welcome", "Set the welcome channel")
+@lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
+async def welcome(ctx: lightbulb.Context):
+    channel = ctx.options.channel
+    database.edit_guild_data(ctx.get_guild().id, "welcome_channel", channel.id)
+    await ctx.respond(f"Welcome channel set to {channel.mention}")   
+# End of set
 
-@plugin.command
+@admin.child
 @lightbulb.option("message_id", "Input the message ID", type=str, required=True)
 @lightbulb.command("savequote", "Saves quote from message ID")
-@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+@lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
 async def save_quote(ctx: lightbulb.Context):
     message = await plugin.bot.rest.fetch_message(ctx.channel_id, ctx.options.message_id)
     await wolfiebot.core.quotes.commit(message.content, message.author.id, ctx.get_guild().id, ctx)
     
-@plugin.command
-@lightbulb.option("channel", "Select the welcome channel", type=hikari.TextableChannel, required=True)
-@lightbulb.command("setwelcome", "Sets the welcome channel")
-@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
-async def set_welcome(ctx: lightbulb.Context):
-    channel = ctx.options.channel
-    db.edit_guild_data(ctx.get_guild().id, "welcome_channel", channel.id)
-    await ctx.respond(f"Welcome channel set to {channel.mention}")
-    
-@plugin.command
+@admin.child
 @lightbulb.option("role", "Select the role", type=hikari.Role)
 @lightbulb.command("addrole", "Adds autorole to list")
-@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+@lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
 async def add_role(ctx: lightbulb.Context):
     role = ctx.options.role
-    roles = db.read_guild_data(ctx.get_guild().id, "autoroles")
+    roles = database.read_guild_data(ctx.get_guild().id, "autoroles")
     if roles is not None:
         for _role in roles:
             if _role == role.id:
                 await ctx.respond(f"{role.mention} has already been added!")
                 return
-    db.append_guild_data(ctx.get_guild().id, "autoroles", role.id)
-    await ctx.respond(f"{role.mention} added!")
+    database.append_guild_data(ctx.get_guild().id, "autoroles", role.id)
+    await ctx.respond(f"{role.mention} added")
     
-@plugin.command
+@admin.child
 @lightbulb.option("role", "Select the role", type=hikari.Role)
 @lightbulb.command("removerole", "Removes autorole from list")
-@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+@lightbulb.implements(lightbulb.SlashSubCommand, lightbulb.PrefixSubCommand)
 async def remove_role(ctx: lightbulb.Context):
     role = ctx.options.role
-    db.remove_guild_data_array(ctx.get_guild().id, "autoroles", role.id)
-    await ctx.respond(f"{role.mention} removed!")
+    database.remove_guild_data_array(ctx.get_guild().id, "autoroles", role.id)
+    await ctx.respond(f"{role.mention} removed")
 
 def load(bot: lightbulb.BotApp):
     bot.add_plugin(plugin)

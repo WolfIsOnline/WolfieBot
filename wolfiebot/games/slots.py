@@ -5,6 +5,7 @@ import lightbulb
 import random
 import asyncio
 import json
+import os
 
 from wolfiebot.database.database import Database
 from wolfiebot.core.casino import Casino
@@ -109,7 +110,8 @@ def get_animation_symbol():
     return get_symbols()["animation"]
     
 def get_symbols():
-    with open("/home/wolf/Projects/WolfieBot-2.0/wolfiebot/games/symbols.json") as file:
+    path = os.path.dirname(__file__)
+    with open(f"{path}/symbols.json") as file:
         data = json.load(file)
     return data   
     

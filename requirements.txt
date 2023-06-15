@@ -1,4 +1,4 @@
-hikari==2.0.0.dev119
+hikari==2.0.0.dev120
 hikari_lightbulb==2.3.3
 openai==0.27.6
 pymongo==4.3.3

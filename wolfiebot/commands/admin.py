@@ -16,13 +16,13 @@ database = Database()
 # Admin Group
 @plugin.command
 @lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.command("admin", "admin commands")
+@lightbulb.command("admin", "Admin commands")
 @lightbulb.implements(lightbulb.PrefixCommandGroup, lightbulb.SlashCommandGroup)
 async def admin(ctx: lightbulb.Context): pass
 
 @admin.child
 @lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.command("set", "set commands")
+@lightbulb.command("set", "Set commands")
 @lightbulb.implements(lightbulb.PrefixSubGroup, lightbulb.SlashSubGroup)
 async def _set(ctx: lightbulb.Context): pass
 

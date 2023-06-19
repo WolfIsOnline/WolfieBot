@@ -1,7 +1,11 @@
 import hikari
 import lightbulb
 import logging
+import pprint
 import wolfiebot
+import asyncio
+import psutil
+import datetime
 
 from lightbulb import commands
 from wolfiebot.core.bank import Bank
@@ -25,7 +29,7 @@ async def dev(ctx: lightbulb.Context): pass
 async def set_status(ctx: lightbulb.Context):
     await plugin.bot.update_presence(status=hikari.Status.ONLINE, activity=hikari.Activity( name=ctx.options.status, type=hikari.ActivityType.PLAYING,),)
     db.edit_user_data(plugin.bot.get_me().id, "status", ctx.options.status)
-    await ctx.respond("presence updated!")
+    await ctx.respond(notify("presence updated!"))
     
 @dev.child
 @lightbulb.add_checks(lightbulb.owner_only)
@@ -34,7 +38,7 @@ async def set_status(ctx: lightbulb.Context):
 @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
 async def load_ext(ctx: lightbulb.Context):
     plugin.bot.load_extensions(f"wolfiebot.{ctx.options.extension}")
-    await ctx.respond(f"{ctx.options.extension} loaded")
+    await ctx.respond(notify(f"{ctx.options.extension} loaded"))
     
 @dev.child
 @lightbulb.add_checks(lightbulb.owner_only)
@@ -43,7 +47,7 @@ async def load_ext(ctx: lightbulb.Context):
 @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
 async def unload_ext(ctx: lightbulb.Context):
     plugin.bot.unload_extensions(f"wolfiebot.{ctx.options.extension}")
-    await ctx.respond(f"{ctx.options.extension} unloaded")
+    await ctx.respond(notify(f"{ctx.options.extension} unloaded"))
     
 @dev.child
 @lightbulb.add_checks(lightbulb.owner_only)
@@ -53,8 +57,64 @@ async def unload_ext(ctx: lightbulb.Context):
 async def reload_ext(ctx: lightbulb.Context):
     plugin.bot.unload_extensions(f"wolfiebot.{ctx.options.extension}")
     plugin.bot.load_extensions(f"wolfiebot.{ctx.options.extension}")
-    await ctx.respond(f"{ctx.options.extension} reloaded")
+    await ctx.respond(notify(f"{ctx.options.extension} reloaded :arrows_clockwise:"))
+    
+@dev.child
+@lightbulb.add_checks(lightbulb.owner_only)
+@lightbulb.command("info", "Detailed information")
+@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+async def info(ctx: lightbulb.Context):
+    
+    interval = 1
+    cpu_percent = psutil.cpu_percent(interval=interval, percpu=True)
+    min_cpu_percent = round(min(cpu_percent))
+    max_cpu_percent = round(max(cpu_percent))
+    avg_cpu_percent = round(sum(cpu_percent) / len(cpu_percent))
+    cpu_count = psutil.cpu_count() 
 
+    memory = psutil.virtual_memory()
+    total_memory_gb = round(memory.total / (1024 ** 3), 2)
+    available_memory_gb = round(memory.available / (1024 ** 3), 2)
+    used_memory_gb = round(memory.used / (1024 ** 3), 2)
+    memory_percent = memory.percent
+    
+    os_info = psutil.sys.platform
+    boot_time = psutil.boot_time()
+    os_uptime = datetime.datetime.now() - datetime.datetime.fromtimestamp(boot_time)
+    
+    memory_format = f"Total: {total_memory_gb}GB\nAvailable: {available_memory_gb}GB\nUsed: {used_memory_gb}GB"
+    cpu_format = f"Min: {min_cpu_percent}%\nAVG: {avg_cpu_percent}%\nMax: {max_cpu_percent}%"
+    os_format= f"OS: {os_info}\nUptime: {os_uptime}"
+    description = f"Memory Usage:\n```{memory_format}```\nCPU Usage:\n ```{cpu_format}```\nOS Info:\n```{os_format}```"
+    embed = hikari.Embed(description=description, color=0x000000)
+    await ctx.respond(embed)
+
+@dev.child
+@lightbulb.add_checks(lightbulb.owner_only)
+@lightbulb.option("guild_id", "Guild ID", type=str, required=True)
+@lightbulb.option("channel_id", "Channel ID", type=str, required=True)
+@lightbulb.command("migrate", "Migrate to database")
+@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+async def migrate(ctx: lightbulb.Context):
+    COUNT = 50000
+    GUILD_ID = ctx.options.guild_id
+    CHANNEL_ID = ctx.options.channel_id
+    messages = await plugin.bot.rest.fetch_messages(CHANNEL_ID).limit(COUNT)
+    total = len(messages)
+    await ctx.respond(notify("wolfiebot.database.migrate: starting"))
+    
+    for index, c in enumerate(messages):
+        if c.author.is_bot is False:
+            await ctx.edit_last_response(notify(*f"wolfiebot.database.migrate: parsing messages **[{index}/{total}]**"))
+            await wolfiebot.core.quotes.commit(c.content, c.author.id, GUILD_ID, fake_add=False)
+            await asyncio.sleep(3)
+    await ctx.edit_last_response(notify(f"wolfiebot.database.migrate: parsing messages **[{total}/{total}]** :white_check_mark:"))
+
+def notify(message):
+    embed = hikari.Embed(title=message, description="", color=0x000000)
+    embed.set_author(name=f"Dev Tools", icon=plugin.bot.get_me().display_avatar_url)
+    return embed 
+    
 def load(bot: lightbulb.BotApp):
     bot.add_plugin(plugin)
 

@@ -4,7 +4,7 @@ import logging
 import wolfiebot
 
 from wolfiebot.core.bank import Bank
-from lightbulb import commands
+from lightbulb import commands, GlobalBucket
 
 log = logging.getLogger(__name__)
 bank = Bank()
@@ -20,6 +20,7 @@ async def balance(ctx: lightbulb.Context):
     await ctx.respond(embed)
     
 @plugin.command
+@lightbulb.add_cooldown(length=14400, uses=1, bucket=lightbulb.GlobalBucket)
 @lightbulb.command("payday", f"Get paid {wolfiebot.PAYDAY:,}")
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand) 
 async def payday(ctx: lightbulb.Context):

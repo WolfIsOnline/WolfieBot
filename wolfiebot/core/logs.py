@@ -41,6 +41,33 @@ async def member_leave(event):
     embed.set_footer(text=f"Account ID: {member.id}")
     await plugin.bot.rest.create_message(db.read_guild_data(guild_id, "logs_channel"), embed)
     
+@plugin.listener(hikari.GuildMessageUpdateEvent)
+async def member_edit(event):
+    member = event.author
+    if member.is_bot is True:
+        return
+    
+    guild_id = event.guild_id
+    embed = hikari.Embed(color=CHANGE_COLOR, title="Message Edited")
+    embed.add_field("Original:", event.old_message.content)
+    embed.add_field("New:", event.message.content)
+    embed.set_author(name=f"{member}", icon=member.display_avatar_url)
+    embed.set_footer(text=f"Message ID: {event.message.id}")
+    await plugin.bot.rest.create_message(db.read_guild_data(guild_id, "logs_channel"), embed)
+    
+@plugin.listener(hikari.GuildMessageDeleteEvent)
+async def member_delete(event):
+    member = event.old_message.author
+    if member.is_bot is True:
+        return
+    
+    guild_id = event.guild_id
+    embed = hikari.Embed(color=REMOVE_COLOR, title="Message Deleted", description=event.old_message.content)
+    embed.add_field("Channel:", f"<#{event.channel_id}>")
+    embed.set_author(name=f"{member}", icon=member.display_avatar_url)
+    embed.set_footer(text=f"Message ID: {event.old_message.id}")
+    await plugin.bot.rest.create_message(db.read_guild_data(guild_id, "logs_channel"), embed)
+    
 def load(bot: lightbulb.BotApp):
     bot.add_plugin(plugin)
 

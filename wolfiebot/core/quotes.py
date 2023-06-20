@@ -39,8 +39,8 @@ async def commit(content, author_id, guild_id, ctx=None, fake_add=False):
             quote_user_id = "Unknown"
             desc_format = "Unknown"
         
-        if fake_add is False:
-            db.append_guild_data(guild_id, "quotes", {"quote" : quote, "quote_user_id" : quote_user_id, "quote_user" : str(quote_user), "submitted_user" : str(submitted_user), "submitted_user_id" : str(author_id)})
+        db.append_guild_data(guild_id, "quotes", {"quote" : quote, "quote_user_id" : quote_user_id, "quote_user" : str(quote_user), "submitted_user" : str(submitted_user), "submitted_user_id" : str(author_id)})
+        print(f"quote [{quote}] added")
         total_quotes = len(db.read_guild_data(guild_id, "quotes"))
     '''
         embed = hikari.Embed(title="Quote Added", description=f"\"{quote}\" - {desc_format}", color=wolfiebot.DEFAULT_COLOR)

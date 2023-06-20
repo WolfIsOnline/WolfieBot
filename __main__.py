@@ -14,7 +14,7 @@ load_dotenv(find_dotenv())
 DISCORD_API_KEY = os.environ.get("DISCORD_API_KEY")
 
 log = logging.getLogger(__name__)
-bot = lightbulb.BotApp(token=DISCORD_API_KEY, prefix="!", intents=hikari.Intents.ALL, default_enabled_guilds=1021249050445611009)
+bot = lightbulb.BotApp(token=DISCORD_API_KEY, prefix="!", intents=hikari.Intents.ALL, default_enabled_guilds=1021249050445611009, help_class=None)
 db = Database()
 
 @bot.listen(hikari.StartedEvent)

@@ -25,7 +25,7 @@ core = ["quotes", "rooms", "logs", "welcome", "autorole", "chat"]
 for c in core:
     bot.load_extensions(f"wolfiebot.core.{c}")
 
-commands = ["user", "dev", "admin", "economy"]
+commands = ["user", "dev", "admin", "economy", "owner"]
 for c in commands:
     bot.load_extensions(f"wolfiebot.commands.{c}")
     
@@ -44,6 +44,32 @@ async def on_command_error(event: lightbulb.CommandErrorEvent) -> None:
     if isinstance(exc, lightbulb.NotOwner):
         await event.context.respond("You do not have access to this command")
         
+    if isinstance(exc, lightbulb.CommandIsOnCooldown):
+        seconds = exc.retry_after
+        time = format_time(seconds)
+        await event.context.respond(f"Command is on cooldown, retry in {time}")
+
+def format_time(seconds):
+    minutes = seconds // 60
+    hours = minutes // 60
+    days = hours // 24
+    years = days // 365
+    
+    time_units = [
+        (years, 'year'),
+        (days % 365, 'day'),
+        (hours % 24, 'hour'),
+        (minutes % 60, 'minute'),
+        (seconds % 60, 'second')
+    ]
+    
+    result = []
+    for value, unit in time_units:
+        if value != 0:
+            result.append(f"{value} {unit if value == 1 else unit+'s'}")
+    
+    return ', '.join(result)
+
 def configure():
     env = open(find_dotenv())
     lines = env.readlines()

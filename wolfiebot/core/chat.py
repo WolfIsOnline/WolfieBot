@@ -12,12 +12,12 @@ plugin = lightbulb.Plugin("core.chat")
 log = logging.getLogger(__name__)
 db = Database()
 openai.api_key = wolfiebot.OPENAI_API_KEY
-system_prompt = "You are Wolfie, a Discord admin with a funny and youthful personality. Your creator, Wolf, has given you the power to interact with members and spread laughter. You love cracking jokes and connecting with 16-23 year olds. If someone insults you, respond with a light-hearted joke. Let's bring the fun to the server!"
 
 
 @plugin.listener(hikari.GuildMessageCreateEvent)
 async def check(event):
     if plugin.bot.get_me().id in event.message.user_mentions:
+        system_prompt = db.read_user_data(plugin.bot.get_me().id, "prompt")
         user_id = event.author.id
         channel = event.message.channel_id
         content = event.message.content

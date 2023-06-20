@@ -101,22 +101,23 @@ async def info(ctx: lightbulb.Context):
 
 @dev.child
 @lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.option("guild_id", "Guild ID", type=str, required=True)
 @lightbulb.option("channel_id", "Channel ID", type=str, required=True)
+@lightbulb.option("fake_add", "fake_add=False", type=bool, required=True)
 @lightbulb.command("migrate", "Migrate to database")
 @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
 async def migrate(ctx: lightbulb.Context):
     COUNT = 50000
-    GUILD_ID = ctx.options.guild_id
+    GUILD_ID = ctx.guild_id
     CHANNEL_ID = ctx.options.channel_id
     messages = await plugin.bot.rest.fetch_messages(CHANNEL_ID).limit(COUNT)
+    fake_add = ctx.options.fake_add
     total = len(messages)
     await ctx.respond(notify("wolfiebot.database.migrate: starting"))
     
     for index, c in enumerate(messages):
         if c.author.is_bot is False:
-            await ctx.edit_last_response(notify(*f"wolfiebot.database.migrate: parsing messages **[{index}/{total}]**"))
-            await wolfiebot.core.quotes.commit(c.content, c.author.id, GUILD_ID, fake_add=False)
+            await ctx.edit_last_response(embed=notify(f"wolfiebot.database.migrate: parsing messages **[{index}/{total}]**"))
+            await wolfiebot.core.quotes.commit(c.content, c.author.id, GUILD_ID, fake_add=fake_add)
             await asyncio.sleep(3)
     await ctx.edit_last_response(notify(f"wolfiebot.database.migrate: parsing messages **[{total}/{total}]** :white_check_mark:"))
 

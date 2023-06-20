@@ -23,7 +23,7 @@ def is_unknown(quote_user_id) -> bool:
         return False
     return True
 
-async def commit(content, author_id, guild_id, ctx=None):
+async def commit(content, author_id, guild_id, ctx=None, fake_add=False):
     quote = re.split("\"", content)[1::2]
     quote_user_id = re.split("<@|>", content)[1::2]
     
@@ -38,20 +38,18 @@ async def commit(content, author_id, guild_id, ctx=None):
             quote_user = "Unknown"
             quote_user_id = "Unknown"
             desc_format = "Unknown"
-            
-        db.append_guild_data(guild_id, "quotes", {"quote" : quote, "quote_user_id" : quote_user_id, "quote_user" : str(quote_user), "submitted_user" : str(submitted_user), "submitted_user_id" : str(author_id)})
+        
+        if fake_add is False:
+            db.append_guild_data(guild_id, "quotes", {"quote" : quote, "quote_user_id" : quote_user_id, "quote_user" : str(quote_user), "submitted_user" : str(submitted_user), "submitted_user_id" : str(author_id)})
         total_quotes = len(db.read_guild_data(guild_id, "quotes"))
+    '''
         embed = hikari.Embed(title="Quote Added", description=f"\"{quote}\" - {desc_format}", color=wolfiebot.DEFAULT_COLOR)
         embed.set_author(name=f"Quote #{total_quotes}")
         if ctx is None:
             await plugin.bot.rest.create_message(db.read_guild_data(guild_id, "quotes_channel"), embed)
         else:
             await ctx.respond(embed)
-    else:
-        if ctx is None:
-            await plugin.bot.rest.create_message(db.read_guild_data(guild_id, "quotes_channel"), "invalid please try again")
-        else:
-            await ctx.respond("invalid please try again")
+    '''
 
 @plugin.listener(hikari.GuildMessageCreateEvent)
 async def listen(event):

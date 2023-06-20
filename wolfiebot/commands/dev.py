@@ -114,10 +114,10 @@ async def migrate(ctx: lightbulb.Context):
     total = len(messages)
     await ctx.respond(notify("wolfiebot.database.migrate: starting"))
     
-    for index, c in enumerate(messages):
-        if c.author.is_bot is False:
+    for index, c in enumerate(messages, 370):
+        if messages[index].author.is_bot is False:
             await ctx.edit_last_response(embed=notify(f"wolfiebot.database.migrate: parsing messages **[{index}/{total}]**"))
-            await wolfiebot.core.quotes.commit(c.content, c.author.id, GUILD_ID, fake_add=fake_add)
+            await wolfiebot.core.quotes.commit(messages[index], messages[index].author.id, GUILD_ID, fake_add=fake_add)
             await asyncio.sleep(3)
     await ctx.edit_last_response(notify(f"wolfiebot.database.migrate: parsing messages **[{total}/{total}]** :white_check_mark:"))
 

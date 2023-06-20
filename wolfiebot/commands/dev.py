@@ -59,6 +59,16 @@ async def reload_ext(ctx: lightbulb.Context):
     plugin.bot.load_extensions(f"wolfiebot.{ctx.options.extension}")
     await ctx.respond(notify(f"{ctx.options.extension} reloaded :arrows_clockwise:"))
     
+    
+@dev.child
+@lightbulb.add_checks(lightbulb.owner_only)
+@lightbulb.option("prompt", "Prompt", type=str, required=True)
+@lightbulb.command("prompt", "Change system prompt")
+@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+async def change_prompt(ctx: lightbulb.Context):
+    db.edit_user_data(plugin.bot.get_me().id, "prompt", ctx.options.prompt)
+    await ctx.respond(notify(f"prompt changed"))
+    
 @dev.child
 @lightbulb.add_checks(lightbulb.owner_only)
 @lightbulb.command("info", "Detailed information")

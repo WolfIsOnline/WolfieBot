@@ -1,72 +1,66 @@
+import hikari
+import lightbulb
 import logging
-import os
 import wolfiebot
+import re
 
-from pymongo import ASCENDING, MongoClient
+from wolfiebot.database.database import Database
 
 log = logging.getLogger(__name__)
+plugin = lightbulb.Plugin("core.quotes")
+db = Database()
 
-class Database:
-    
-    def __init__(self):
-        self.client = MongoClient(wolfiebot.MONGODB_CONNECTION)
-        
-    def edit_user_data(self, user_id, name, value):
-        document = self.client["wolfie"]["users"]
-        document.find_one_and_update({"_id": user_id}, {"$set" : { name : value }}, upsert=True)
-        
-    def append_user_data(self, user_id, name, value):
-        document = self.client["wolfie"]["users"]
-        document.find_one_and_update({"_id" : user_id}, {"$push" : { name : value }}, upsert=True)
+def validate(quote) -> bool:
+    if quote:
+        quote = quote[0]
+        if quote == "" or quote.isspace():
+            return False
+        return True
+    return False
 
-    # this is to long but is very specific
-    # never use this unless you have no choice
-    def remove_user_data_array_by_index(self, user_id, name, index):
-        document = self.client["wolfie"]["users"]
-        
-        # this is a work around for removing an array by the index
-        # this can cause some future issues but for now it works
-        document.find_one_and_update({"_id" : user_id}, {"$unset": {f"{name}.{index}": 1}}, upsert=True)
-        document.find_one_and_update({"_id" : user_id}, {"$pull" : {f"{name}" : None}}, upsert=True)
-        
-    def read_user_data(self, user_id, name=None):
-        document = self.client["wolfie"]["users"]
-        raw_data = document.find({"_id" : user_id}, {})
-        for data in raw_data:
-            if name is not None:
-                is_present = name in data
-                if is_present is False:
-                    return None
-                return data[name]
-        return None
-        
-    def delete_user_data(self, user_id, name):
-        document = self.client["wolfie"]["users"]
-        document.find_one_and_update({"_id" : user_id}, { "$unset" : { name : {} } })
-        
-    def edit_guild_data(self, guild_id, name, value):
-        document = self.client["wolfie"]["guilds"]
-        document.find_one_and_update({"_id": guild_id}, {"$set" : { name : value }}, upsert=True)
-        
-    def append_guild_data(self, guild_id, name, value):
-        document = self.client["wolfie"]["guilds"]
-        document.find_one_and_update({"_id" : guild_id}, {"$push" : { name : value }}, upsert=True)   
-         
-    def remove_guild_data_array(self, guild_id, name, value):
-        document = self.client["wolfie"]["guilds"]
-        document.find_one_and_update({"_id" : guild_id}, {"$pull" : { name : value }}, upsert=True)   
-        
-    def read_guild_data(self, guild_id, name=None):
-        document = self.client["wolfie"]["guilds"]
-        raw_data = document.find({"_id" : guild_id}, {})
-        for data in raw_data:
-            if name is not None:
-                is_present = name in data
-                if is_present is False:
-                    return None
-                return data[name]
-        return raw_data
+def is_unknown(quote_user_id) -> bool:
+    if quote_user_id:
+        return False
+    return True
+
+async def commit(content, author_id, guild_id, ctx=None):
+    quote = re.split("\"|“|”", content)[1::2]
+    quote_user_id = re.split("<@|>", content)[1::2]
     
-    def delete_guild_data(self, guild_id, name):
-        document = self.client["wolfie"]["guilds"]
-        document.update_one({"_id" : guild_id}, { "$unset" : { name : {} } })
+    if validate(quote) is True:
+        quote = quote[0]
+        submitted_user = await plugin.bot.rest.fetch_user(author_id)
+        if is_unknown(quote_user_id) is False:
+            quote_user_id = quote_user_id[0]
+            quote_user = await plugin.bot.rest.fetch_user(quote_user_id)
+            desc_format = quote_user.mention
+        else:
+            quote_user = "Unknown"
+            quote_user_id = -1
+            desc_format = "Unknown"
+    else:
+        return
+    
+    db.append_guild_data(guild_id, "quotes", {"quote" : quote, "quote_user_id" : int(quote_user_id), "quote_user" : str(quote_user), "submitted_user" : str(submitted_user), "submitted_user_id" : author_id})
+    total_quotes = len(db.read_guild_data(guild_id, "quotes"))
+    embed = hikari.Embed(title="Quote Added", description=f"\"{quote}\" - {desc_format}", color=wolfiebot.DEFAULT_COLOR)
+    embed.set_author(name=f"Quote #{total_quotes}")
+    if ctx is None:
+        await plugin.bot.rest.create_message(db.read_guild_data(guild_id, "quotes_channel"), embed)
+    else:
+        await ctx.respond(embed)
+
+@plugin.listener(hikari.GuildMessageCreateEvent)
+async def listen(event):
+    channel_id = db.read_guild_data(event.guild_id, "quotes_channel")
+    if event.channel_id != channel_id or event.is_bot is True:
+        return
+    if not event.content.startswith("\"") and not event.content.startswith("“"):
+        return
+    await commit(event.content, event.author_id, event.guild_id)
+
+def load(bot: lightbulb.BotApp):
+    bot.add_plugin(plugin)
+
+def unload(bot: lightbulb.BotApp):
+    bot.remove_plugin(plugin)

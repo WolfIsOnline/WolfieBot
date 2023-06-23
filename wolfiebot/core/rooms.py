@@ -36,7 +36,7 @@ async def create_room(event, parent_channel_id):
     member = plugin.bot.cache.get_member(event.guild_id, event.state.user_id)
     name = member.nickname
     if member.nickname is None:
-        name = member.name
+        name = member
     channel = await event.app.rest.create_guild_voice_channel(
             event.guild_id, 
             f"{name}'s Room", 

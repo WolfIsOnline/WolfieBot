@@ -13,6 +13,13 @@ plugin = lightbulb.Plugin("commands.user")
 bot = lightbulb.BotApp
 db = Database()
 
+@plugin.command
+@lightbulb.command("clear", "Clear the conversation memory of Wolfie")
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+async def _clear(ctx: lightbulb.Context):
+    user_id = ctx.author.id
+    db.delete_user_data(user_id, "conversation")
+    await ctx.respond(notify("Wolfie's memory has been reset."))
 
 @plugin.command
 @lightbulb.option("user", "Select a member", type=hikari.User, required=False)
@@ -38,7 +45,7 @@ async def quote(ctx: lightbulb.Context):
     sorted_quote_data = []
     if ctx.options.user is not None:
         for raw_quote_data in quotes:
-            if raw_quote_data["quote_user_id"] == str(ctx.options.user.id):
+            if raw_quote_data["quote_user_id"] == ctx.options.user.id:
                 sorted_quote_data.append(raw_quote_data)
     else:
         sorted_quote_data = quotes
@@ -46,11 +53,16 @@ async def quote(ctx: lightbulb.Context):
     random_quote = random.choice(sorted_quote_data)
     quote = random_quote["quote"]
     if random_quote["quote_user"] != "Unknown":
-        quote_user = "<@" + random_quote["quote_user_id"] + ">"
+        quote_user = "<@" + str(random_quote["quote_user_id"]) + ">"
     else:
         quote_user = "Unknown"
         
     await ctx.respond(f"\"{quote}\" - {quote_user}")
+    
+def notify(message):
+    embed = hikari.Embed(title=message, description="", color=wolfiebot.DEFAULT_COLOR)
+    embed.set_author(name=f"Wolfie: ", icon=plugin.bot.get_me().display_avatar_url)
+    return embed 
     
 def load(bot: lightbulb.BotApp):
     bot.add_plugin(plugin)

@@ -25,7 +25,7 @@ async def balance(ctx: lightbulb.Context):
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand) 
 async def payday(ctx: lightbulb.Context):
     bank.deposit(ctx.author.id, wolfiebot.PAYDAY, "payday")
-    await ctx.respond(f"{wolfiebot.CURRENCY_SYMBOL}{wolfiebot.PAYDAY:,} has been deposited into your account.")
+    await ctx.respond(notify(f"{wolfiebot.CURRENCY_SYMBOL}{wolfiebot.PAYDAY:,} has been deposited into your account"))
     
 @plugin.command
 @lightbulb.option("user", "Select the member", type=hikari.User, required=True)
@@ -39,9 +39,13 @@ async def transfer(ctx: lightbulb.Context):
     if transfer_amount <= -1:
         description = "Transfer declined (Insufficent Funds)"
     else:
-        description = f"**{wolfiebot.CURRENCY_SYMBOL}{amount:,}** transfered to {ctx.options.user}"
-    embed = hikari.Embed(color=wolfiebot.DEFAULT_COLOR, title="Nocturnia Bank", description=description)
-    await ctx.respond(embed)
+        description = f"{wolfiebot.CURRENCY_SYMBOL}{amount:,} transfered to {ctx.options.user}"
+    await ctx.respond(notify(description))
+    
+def notify(message):
+    embed = hikari.Embed(title=message, description="", color=wolfiebot.DEFAULT_COLOR)
+    embed.set_author(name=f"Nocturnia Bank", icon=plugin.bot.get_me().display_avatar_url)
+    return embed 
 
 def load(bot: lightbulb.BotApp):
     bot.add_plugin(plugin)

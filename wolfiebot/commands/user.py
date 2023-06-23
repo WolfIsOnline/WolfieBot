@@ -61,7 +61,7 @@ async def quote(ctx: lightbulb.Context):
     
 def notify(message):
     embed = hikari.Embed(title=message, description="", color=wolfiebot.DEFAULT_COLOR)
-    embed.set_author(name=f"Wolfie: ", icon=plugin.bot.get_me().display_avatar_url)
+    embed.set_author(name=f"Wolfie Commands", icon=plugin.bot.get_me().display_avatar_url)
     return embed 
     
 def load(bot: lightbulb.BotApp):

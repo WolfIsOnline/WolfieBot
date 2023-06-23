@@ -50,17 +50,17 @@ async def on_command_error(event: lightbulb.CommandErrorEvent) -> None:
         await event.context.respond(f"Command is on cooldown, retry in {time}")
 
 def format_time(seconds):
-    minutes = seconds // 60
-    hours = minutes // 60
-    days = hours // 24
-    years = days // 365
+    minutes = int(seconds // 60)
+    hours = int(minutes // 60)
+    days = int(hours // 24)
+    years = int(days // 365)
     
     time_units = [
         (years, 'year'),
         (days % 365, 'day'),
         (hours % 24, 'hour'),
         (minutes % 60, 'minute'),
-        (seconds % 60, 'second')
+        (int(seconds) % 60, 'second')
     ]
     
     result = []

@@ -99,29 +99,6 @@ async def info(ctx: lightbulb.Context):
     embed = hikari.Embed(description=description, color=0x000000)
     await ctx.respond(embed)
 
-@dev.child
-@lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.option("channel_id", "Channel ID", type=str, required=True)
-@lightbulb.option("fake_add", "fake_add=False", type=bool, required=True)
-@lightbulb.command("migrate", "Migrate to database")
-@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
-async def migrate(ctx: lightbulb.Context):
-    COUNT = 50000
-    GUILD_ID = ctx.guild_id
-    CHANNEL_ID = ctx.options.channel_id
-    messages = await plugin.bot.rest.fetch_messages(CHANNEL_ID).limit(COUNT)
-    fake_add = ctx.options.fake_add
-    total = len(messages)
-    await ctx.respond(notify("wolfiebot.database.migrate: starting"))
-    
-    for index, c in enumerate(messages, 370):
-        if messages[index].author.is_bot is False:
-            print(f"{index}/{total}")
-            #await ctx.edit_last_response(embed=notify(f"wolfiebot.database.migrate: parsing messages **[{index}/{total}]**"))
-            await wolfiebot.core.quotes.commit(messages[index], messages[index].author.id, GUILD_ID, fake_add=fake_add)
-            await asyncio.sleep(3)
-    await ctx.edit_last_response(embed=notify(f"wolfiebot.database.migrate: parsing messages **[{total}/{total}]** :white_check_mark:"))
-
 def notify(message):
     embed = hikari.Embed(title=message, description="", color=0x000000)
     embed.set_author(name=f"Dev Tools", icon=plugin.bot.get_me().display_avatar_url)

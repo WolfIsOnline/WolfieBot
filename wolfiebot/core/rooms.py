@@ -34,9 +34,12 @@ async def check_empty(event):
 async def create_room(event, parent_channel_id):
     parent_channel = plugin.bot.cache.get_guild_channel(parent_channel_id)
     member = plugin.bot.cache.get_member(event.guild_id, event.state.user_id)
+    name = member.nickname
+    if member.nickname is None:
+        name = member.name
     channel = await event.app.rest.create_guild_voice_channel(
             event.guild_id, 
-            f"{member.nickname}'s Room", 
+            f"{name}'s Room", 
             user_limit=parent_channel.user_limit,
             bitrate=parent_channel.bitrate,
             video_quality_mode=parent_channel.video_quality_mode,
@@ -51,9 +54,6 @@ async def create_room(event, parent_channel_id):
     )
     db.append_guild_data(event.guild_id, "autoroom_channels", channel.id)
     await plugin.bot.rest.edit_member(event.guild_id, event.state.user_id, voice_channel=channel.id)
-    
-async def delete_empty(channel_id):
-    pass
 
 def load(bot: lightbulb.BotApp):
     bot.add_plugin(plugin)

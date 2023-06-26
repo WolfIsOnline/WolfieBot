@@ -14,14 +14,14 @@ load_dotenv(find_dotenv())
 DISCORD_API_KEY = os.environ.get("DISCORD_API_KEY")
 
 log = logging.getLogger(__name__)
-bot = lightbulb.BotApp(token=DISCORD_API_KEY, prefix="!", intents=hikari.Intents.ALL, default_enabled_guilds=[851644348281258035,1021249050445611009], help_class=None)
+bot = lightbulb.BotApp(token=DISCORD_API_KEY, prefix="!", intents=hikari.Intents.ALL, default_enabled_guilds=[], help_class=None)
 db = Database()
 
 @bot.listen(hikari.StartedEvent)
 async def start(event):
     await bot.update_presence(status=hikari.Status.ONLINE, activity=hikari.Activity(name=db.read_user_data(bot.get_me().id, "status"), type=hikari.ActivityType.PLAYING,),)
 
-core = ["quotes", "rooms", "logs", "welcome", "autorole", "chat"]
+core = ["quotes", "rooms", "logs", "welcome", "autorole"]
 for c in core:
     bot.load_extensions(f"wolfiebot.core.{c}")
 
@@ -32,6 +32,10 @@ for c in commands:
 games = ["slots", "casino"]
 for c in games:
     bot.load_extensions(f"wolfiebot.games.{c}")
+    
+ai = ["chat"]
+for c in ai:
+    bot.load_extensions(f"wolfiebot.ai.{c}")
         
 @bot.listen(hikari.ExceptionEvent)
 async def on_error(event: hikari.ExceptionEvent[EventT]) -> None:

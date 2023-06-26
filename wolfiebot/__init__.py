@@ -1,8 +1,8 @@
 import os
 from dotenv import load_dotenv, find_dotenv
 
-__version__ = "2.0.0"
-__authors__ = "WolfIsOnline#6677"
+__version__ = "2.1.1"
+__authors__ = "WolfIsOnline"
 __description__ = "A multi-tool bot with an emphasis on economy"
 
 

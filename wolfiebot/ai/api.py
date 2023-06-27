@@ -28,23 +28,26 @@ class Api:
     
     def close_session(self, session_id: str) -> bool:
         response = requests.get(url=f"{host}/session/{session_id}/close", headers={}, data={})
-        
         if response.status_code == 200:
             return True
         return False
     
-    def get_session_status(self, session_id: str):
+    def get_session_status(self, session_id: str) -> bool:
         response = requests.get(url=f"{host}/session/{session_id}/status", headers={}, data={})
-        
         if response.status_code == 404:
             return False
         return True
     
-    def send_message(self, session_id: str, message: str, attempts: int = 3, _attempt: int = 1) -> str:
+    def send_message(self, session_id: str, message: str, attempts: int = 5, _attempt: int = 1) -> str:
         response = requests.post(url=f"{host}/session/{session_id}/message", headers={"Content-Type" : "application/json"}, data=json.dumps({"message": message}))
         if response.status_code == 202:
             time.sleep(4)
             reply = self._get_response(session_id=session_id, _message=message)
+            if reply == "disconnected":
+                if _attempt <= attempts:
+                    log.warning(f"message failed, retrying ({_attempt}/{attempts})")
+                    time.sleep(3)
+                    return self.send_message(session_id=session_id, message=message, attempts=attempts, _attempt=_attempt + 1)               
             return reply
         
         if response.status_code == 200:
@@ -63,10 +66,8 @@ class Api:
                 if c["type"] == "text":
                     messages.append(c["text"])
                 elif c["type"] == "disconnected":
-                    if _attempt <= attempts:
-                        log.warning(f"message disconnected, resending ({_attempt}/{attempts}")
-                        time.sleep(2)
-                        return self.send_message(session_id=session_id, message=_message)
+                    return "disconnected"
+                
         message = "".join(messages)
         
         if message == "":

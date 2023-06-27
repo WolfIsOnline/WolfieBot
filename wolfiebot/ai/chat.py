@@ -50,6 +50,8 @@ async def chat(event, user_name: str, user_id: int) -> None:
     channel_id = event.channel_id
     await plugin.bot.rest.trigger_typing(channel=channel_id)
     reply = api.send_message(session_id=session_id, message=message, attempts=5)
+    if reply == "" or reply is None:
+        return
     await plugin.bot.rest.create_message(channel_id, f"<@{user_id}> {reply}")
     
      

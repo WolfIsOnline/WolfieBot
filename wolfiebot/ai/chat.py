@@ -26,15 +26,15 @@ async def guild_listen(event) -> None:
         name = user.nickname
         if name is None:
             name = user
-        await chat(event=event, user_name=name, user_id=user.id)
+        await chat(event=event, user_name=name, user_id=user.id, is_dm=False)
         
 @plugin.listener(hikari.DMMessageCreateEvent)
 async def dm_listen(event) -> None:
     if event.author_id == plugin.bot.get_me().id:
         return
-    await chat(event=event, user_name=event.author, user_id=event.author.id)
+    await chat(event=event, user_name=event.author, user_id=event.author.id, is_dm=True)
     
-async def chat(event, user_name: str, user_id: int) -> None:
+async def chat(event, user_name: str, user_id: int, is_dm: bool) -> None:
     session_id = database.read_user_data(user_id=user_id, name="session_id")
     session_status = api.get_session_status(session_id)
     if session_status is False:
@@ -52,7 +52,10 @@ async def chat(event, user_name: str, user_id: int) -> None:
     reply = api.send_message(session_id=session_id, message=message, attempts=5)
     if reply == "" or reply is None:
         return
-    await plugin.bot.rest.create_message(channel_id, f"<@{user_id}> {reply}")
+    if is_dm is False:
+        await plugin.bot.rest.create_message(channel_id, f"<@{user_id}> {reply}")
+    else:
+        await plugin.bot.rest.create_message(channel_id, f"{reply}")
     
      
 def load(bot: lightbulb.BotApp) -> None:

@@ -14,14 +14,6 @@ bot = lightbulb.BotApp
 db = Database()
 
 @plugin.command
-@lightbulb.command("clear", "Clear the conversation memory of Wolfie")
-@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
-async def _clear(ctx: lightbulb.Context):
-    user_id = ctx.author.id
-    db.delete_user_data(user_id, "conversation")
-    await ctx.respond(notify("Wolfie's memory has been reset."))
-
-@plugin.command
 @lightbulb.option("user", "Select a member", type=hikari.User, required=False)
 @lightbulb.command("avatar", "Get users avatar", aliases="pfp")
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)

@@ -59,7 +59,7 @@ async def chat(event, user_name: str, user_id: int, is_dm: bool) -> None:
     state = database.read_user_data(plugin.bot.get_me().id, "voice_state")
     if state is True:
         wolfiebot.ai.voice.generate_reply(reply)
-        audio = hikari.File("./WolfieBot/wolfiebot/ai/reply.mp4")
+        audio = hikari.File("./WolfieBot/wolfiebot/content/reply.mp4")
         await event.app.rest.create_message(channel=channel_id, content=reply, attachment=audio, reply=event.message)
     else:
         await event.app.rest.create_message(channel=channel_id, content=reply, reply=event.message)

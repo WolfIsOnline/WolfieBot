@@ -12,7 +12,7 @@ set_api_key(wolfiebot.ELEVENLABS_API_KEY)
 
 
 def generate_reply(reply: str):
-    base_path = "./WolfieBot/wolfiebot/ai"
+    base_path = "./WolfieBot/wolfiebot/content"
     audio_path = f"{base_path}/reply.mp3"
     image_path = f"{base_path}/wolfie-pfp.png"
     output_path = f"{base_path}/reply.mp4"

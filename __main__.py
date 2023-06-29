@@ -33,7 +33,7 @@ games = ["slots", "casino"]
 for c in games:
     bot.load_extensions(f"wolfiebot.games.{c}")
     
-ai = ["chat"]
+ai = ["chat", "voice"]
 for c in ai:
     bot.load_extensions(f"wolfiebot.ai.{c}")
         

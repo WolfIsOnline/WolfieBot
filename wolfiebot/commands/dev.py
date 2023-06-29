@@ -13,7 +13,7 @@ from wolfiebot.database.database import Database
 
 log = logging.getLogger(__name__)
 plugin = lightbulb.Plugin("commands.dev")
-db = Database()
+database = Database()
 
 @plugin.command
 @lightbulb.add_checks(lightbulb.owner_only)
@@ -28,7 +28,7 @@ async def dev(ctx: lightbulb.Context): pass
 @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
 async def set_status(ctx: lightbulb.Context):
     await plugin.bot.update_presence(status=hikari.Status.ONLINE, activity=hikari.Activity( name=ctx.options.status, type=hikari.ActivityType.PLAYING,),)
-    db.edit_user_data(plugin.bot.get_me().id, "status", ctx.options.status)
+    database.edit_user_data(plugin.bot.get_me().id, "status", ctx.options.status)
     await ctx.respond(notify("presence updated!"))
     
 @dev.child
@@ -59,6 +59,15 @@ async def reload_ext(ctx: lightbulb.Context):
     plugin.bot.load_extensions(f"wolfiebot.{ctx.options.extension}")
     await ctx.respond(notify(f"{ctx.options.extension} reloaded :arrows_clockwise:"))
     
+@dev.child
+@lightbulb.add_checks(lightbulb.owner_only)
+@lightbulb.option("toggle", "True/False", type=bool, required=True)
+@lightbulb.command("voice", "Turn wolfie voice off")
+@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+async def voice(ctx: lightbulb.Context):
+    database.edit_user_data(plugin.bot.get_me().id, "voice_state", ctx.options.toggle)
+    await ctx.respond(notify(f"send voice set to {ctx.options.toggle}"))
+    
     
 @dev.child
 @lightbulb.add_checks(lightbulb.owner_only)
@@ -66,7 +75,7 @@ async def reload_ext(ctx: lightbulb.Context):
 @lightbulb.command("prompt", "Change system prompt")
 @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
 async def change_prompt(ctx: lightbulb.Context):
-    db.edit_user_data(plugin.bot.get_me().id, "prompt", ctx.options.prompt)
+    database.edit_user_data(plugin.bot.get_me().id, "prompt", ctx.options.prompt)
     await ctx.respond(notify(f"prompt changed"))
     
 @dev.child

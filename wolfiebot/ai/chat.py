@@ -5,12 +5,11 @@ AI Chat Module
 import logging
 import hikari
 import lightbulb
-# pylint: disable=import-error
-import wolfiebot
 
 # pylint: disable=import-error
+# pylint: disable=no-name-in-module
+import wolfiebot
 from wolfiebot.database.database import Database
-# pylint: disable=import-error
 from wolfiebot.ai.api import Api
 
 plugin = lightbulb.Plugin("ai.chat")
@@ -114,6 +113,7 @@ async def chat(event, user_name: str, user_id: int, is_dm: bool) -> None:
 
     state = database.read_user_data(plugin.bot.get_me().id, "voice_state")
     if state:
+        ## pylint: disable=no-member
         wolfiebot.ai.voice.generate_reply(reply)
         audio = hikari.File("./WolfieBot/wolfiebot/content/reply.mp4")
         await event.app.rest.create_message(

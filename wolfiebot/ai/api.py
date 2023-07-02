@@ -9,6 +9,7 @@ from typing import Dict, Optional, TypedDict
 import requests
 
 # pylint: disable=import-error
+# pylint: disable=no-name-in-module
 from wolfiebot.database.database import Database
 
 log = logging.getLogger(__name__)
@@ -132,7 +133,7 @@ class Api:
             session_id = session.get("id")
             log.info(data.get("user_id"))
             self.update_session_id(user_id=user_id, session_id=session_id)
-            log.info("Opening session [%s]", session_id)
+            log.info("opening session [%s]", session_id)
         else:
             session = {
                 "id": response.status_code,

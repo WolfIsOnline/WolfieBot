@@ -17,6 +17,7 @@ database = Database()
 @plugin.command
 @lightbulb.command("admin", "Admin commands")
 @lightbulb.implements(lightbulb.PrefixCommandGroup, lightbulb.SlashCommandGroup)
+# pylint: disable=unused-argument
 async def admin(ctx: lightbulb.Context) -> None:
     """
     Admin group
@@ -27,11 +28,13 @@ async def admin(ctx: lightbulb.Context) -> None:
     Returns:
         None
     """
+    return None
 
 @admin.child
 @lightbulb.add_checks(lightbulb.owner_only)
 @lightbulb.command("set", "Set commands")
 @lightbulb.implements(lightbulb.PrefixSubGroup, lightbulb.SlashSubGroup)
+# pylint: disable=unused-argument
 async def _set(ctx: lightbulb.Context):
     """
     Set group within the "Admin" group
@@ -42,6 +45,7 @@ async def _set(ctx: lightbulb.Context):
     Returns:
         None
     """
+    return None
 
 @admin.child
 @lightbulb.add_checks(lightbulb.owner_only)

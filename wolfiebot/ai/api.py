@@ -72,7 +72,7 @@ class Api:
         )
         return response.text
 
-    def open_session(self, data: OpenSessionData) -> Dict[str, any]:
+    def open_session(self, data: OpenSessionData, update: bool = True) -> Dict[str, any]:
         """
         Opens a session for the specified user and returns session information.
 
@@ -132,7 +132,8 @@ class Api:
             }
             session_id = session.get("id")
             log.info(data.get("user_id"))
-            self.update_session_id(user_id=user_id, session_id=session_id)
+            if update is True:
+                self.update_session_id(user_id=user_id, session_id=session_id)
             log.info("opening session [%s]", session_id)
         else:
             session = {
@@ -299,3 +300,14 @@ class Api:
 
         log.info("reply generated [%s]", session_id)
         return message
+
+    def send_scene_trigger(self, session_id: str, custom_id: str) -> str:
+        response = requests.get(
+            url=f"{HOST}/session/{session_id}/custom/{custom_id}",
+            headers={},
+            data={},
+            timeout=10
+        )
+        if response.status_code == 202:
+            reply = self._get_response(session_id=session_id)
+            return reply

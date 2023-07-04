@@ -1,3 +1,7 @@
+"""
+User Commands
+"""
+
 import logging
 import random
 import hikari

@@ -26,7 +26,7 @@ async def guild_listen(event) -> None:
     Listens for guild message create events and handles mentions of the bot user.
 
     Args:
-        event (hikari.GuildMessageCreateEvent): The event object representing the guild message create event.
+        event (hikari.GuildMessageCreateEvent): The event object
 
     Returns:
         None
@@ -44,7 +44,7 @@ async def direct_listen(event) -> None:
     Listens for direct message create events and handles messages received from users.
 
     Args:
-        event (hikari.DMMessageCreateEvent): The event object representing the direct message create event.
+        event (hikari.DMMessageCreateEvent): The event object
 
     Returns:
         None
@@ -136,7 +136,36 @@ async def chat(event, user_name: str, user_id: int, is_dm: bool) -> None:
 
     log.info("sending reply to session [%s]", session_id)
 
+async def generate_scene_reply(user_id: int, name: str, custom_id: str):
+    """
+    Generate a reply for a scene interaction.
 
+    Generates a reply for a scene interaction by opening a session, setting the user ID,
+    scene ID, character ID, and name, and sending a scene trigger with the specified custom ID.
+    If the user has an existing session, it will be closed before opening a new one.
+
+    Args:
+        user_id (int): The ID of the user.
+        name (str): The name to set for the session.
+        custom_id (str): The custom ID for the scene trigger.
+
+    Returns:
+        str: The response message
+    """
+    session_id = database.read_user_data(user_id=user_id, name="session_id")
+    session_status = api.get_session_status(session_id)
+    if session_status is True:
+        api.close_session(session_id=session_id)
+
+    session = api.open_session({
+            "user_id": user_id,
+            "scene_id": SCENE_ID,
+            "character_id": CHARACTER_ID,
+            "name": str(name)
+        })
+    session_id = session.get("id")
+    message = api.send_scene_trigger(session_id=session_id, custom_id=custom_id)
+    return message
 
 def load(bot: lightbulb.BotApp) -> None:
     """

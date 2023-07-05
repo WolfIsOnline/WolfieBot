@@ -5,9 +5,8 @@ Economy Commands
 import logging
 import hikari
 import lightbulb
-import wolfiebot
-
 # pylint: disable=no-name-in-module, import-error, unused-import
+import wolfiebot
 from wolfiebot.core.bank import Bank
 
 log = logging.getLogger(__name__)

@@ -6,10 +6,8 @@ import datetime
 import hikari
 import lightbulb
 import psutil
-
-import wolfiebot
-
 # pylint: disable=no-name-in-module, import-error, unused-import
+import wolfiebot
 from wolfiebot.core.bank import Bank
 from wolfiebot.database.database import Database
 from wolfiebot.ai.api import Api
@@ -37,7 +35,6 @@ async def dev(ctx: lightbulb.Context):
         None
     """
     return None
-
 
 @dev.child
 @lightbulb.add_checks(lightbulb.owner_only)
@@ -68,7 +65,6 @@ async def set_status(ctx: lightbulb.Context):
                             "status", ctx.options.status)
     await ctx.respond(notify("presence updated!"))
 
-
 @dev.child
 @lightbulb.add_checks(lightbulb.owner_only)
 @lightbulb.option("extension", "Extension", type=str, required=True)
@@ -90,7 +86,6 @@ async def load_ext(ctx: lightbulb.Context):
     plugin.bot.load_extensions(f"wolfiebot.{ctx.options.extension}")
     await ctx.respond(notify(f"{ctx.options.extension} loaded"))
 
-
 @dev.child
 @lightbulb.add_checks(lightbulb.owner_only)
 @lightbulb.option("extension", "Extension", type=str, required=True)
@@ -111,7 +106,6 @@ async def unload_ext(ctx: lightbulb.Context):
     """
     plugin.bot.unload_extensions(f"wolfiebot.{ctx.options.extension}")
     await ctx.respond(notify(f"{ctx.options.extension} unloaded"))
-
 
 @dev.child
 @lightbulb.add_checks(lightbulb.owner_only)
@@ -135,7 +129,6 @@ async def reload_ext(ctx: lightbulb.Context):
     plugin.bot.load_extensions(f"wolfiebot.{ctx.options.extension}")
     await ctx.respond(notify(f"{ctx.options.extension} reloaded :arrows_clockwise:"))
 
-
 @dev.child
 @lightbulb.add_checks(lightbulb.owner_only)
 @lightbulb.option("toggle", "True/False", type=bool, required=True)
@@ -158,16 +151,6 @@ async def voice(ctx: lightbulb.Context):
     database.edit_user_data(plugin.bot.get_me().id,
                             "voice_state", ctx.options.toggle)
     await ctx.respond(notify(f"send voice set to {ctx.options.toggle}"))
-
-
-@dev.child
-@lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.command("simulate", "Simulate")
-@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
-async def simulate(ctx: lightbulb.Context):
-    # pylint: disable=no-member
-    await wolfiebot.core.welcome.user_join(ctx)
-
 
 @dev.child
 @lightbulb.add_checks(lightbulb.owner_only)
@@ -208,6 +191,32 @@ async def info(ctx: lightbulb.Context):
     embed = hikari.Embed(description=description, color=0x000000)
     await ctx.respond(embed)
 
+@dev.child
+@lightbulb.add_checks(lightbulb.owner_only)
+@lightbulb.option("level", "level", type=int, required=True)
+@lightbulb.option("user", "Select User", type=hikari.User, required=True)
+@lightbulb.command("set_level", "Set level multiplier")
+@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+async def set_level(ctx: lightbulb.Context) -> None:
+    """
+    Set the level for a user.
+
+    Sets the level of a user to the specified value by adjusting their experience points.
+    The required experience points for the specified level are calculated using
+    the level multiplier.
+
+    Args:
+        ctx (lightbulb.Context): The command invocation context.
+
+    Returns:
+        None: The function doesn't return any value.
+    """
+    level = ctx.options.level
+    user = ctx.options.user
+    channel_id = ctx.get_channel().id
+    # pylint: disable=no-member
+    exp_required = await wolfiebot.core.levels.get_exp_required(level)
+    await wolfiebot.core.levels.set_exp(user_id=user.id, exp=exp_required, channel_id=channel_id)
 
 def notify(message):
     """
@@ -224,8 +233,10 @@ def notify(message):
     with the bot's display avatar as the icon.
     """
     embed = hikari.Embed(title=message, description="", color=0x000000)
-    embed.set_author(name="Dev Tools",
-                     icon=plugin.bot.get_me().display_avatar_url)
+    embed.set_author(
+        name="Dev Tools",
+        icon=plugin.bot.get_me().display_avatar_url
+    )
     return embed
 
 

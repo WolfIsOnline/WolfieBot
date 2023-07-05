@@ -1,8 +1,11 @@
+"""
+Logging server events
+"""
+import logging
 import hikari
 import lightbulb
 import pytz
-import logging
-
+# pylint: disable=no-name-in-module, import-error
 from wolfiebot.database.database import Database
 
 log = logging.getLogger(__name__)
@@ -19,6 +22,15 @@ IMPORTANT_COLOR = 0xE74C3C
 
 @plugin.listener(hikari.MemberCreateEvent)
 async def member_join(event) -> None:
+    """
+    Handles the member join event.
+
+    Args:
+        event: The member join event.
+
+    Returns:
+        None
+    """
     member = event.user
     guild_id = event.guild_id
     embed = hikari.Embed(color=ADDITION_COLOR,
@@ -32,6 +44,15 @@ async def member_join(event) -> None:
 
 @plugin.listener(hikari.MemberDeleteEvent)
 async def member_leave(event) -> None:
+    """
+    Handles the member leave event.
+
+    Args:
+        event: The member leave event.
+
+    Returns:
+        None
+    """
     member = event.user
     guild_id = event.guild_id
     try:
@@ -48,6 +69,15 @@ async def member_leave(event) -> None:
 
 @plugin.listener(hikari.GuildMessageUpdateEvent)
 async def member_edit(event) -> None:
+    """
+    Handles the member edit event.
+
+    Args:
+        event: The member edit event.
+
+    Returns:
+        None
+    """
     member = event.author
     if member.is_bot is True:
         return
@@ -63,6 +93,15 @@ async def member_edit(event) -> None:
 
 @plugin.listener(hikari.GuildMessageDeleteEvent)
 async def member_delete(event) -> None:
+    """
+    Handles the member delete event.
+
+    Args:
+        event: The member delete event.
+
+    Returns:
+        None
+    """
     member = event.old_message.author
     if member.is_bot is True:
         return
@@ -74,10 +113,26 @@ async def member_delete(event) -> None:
     embed.set_footer(text=f"Message ID: {event.old_message.id}")
     await plugin.bot.rest.create_message(database.read_guild_data(guild_id, "logs_channel"), embed)
 
-
 def load(bot: lightbulb.BotApp) -> None:
+    """
+    Loads the plugin into the bot.
+
+    Args:
+        bot (lightbulb.BotApp): The bot instance.
+
+    Returns:
+        None
+    """
     bot.add_plugin(plugin)
 
-
 def unload(bot: lightbulb.BotApp) -> None:
+    """
+    Unloads the plugin from the bot.
+
+    Args:
+        bot (lightbulb.BotApp): The bot instance.
+
+    Returns:
+        None
+    """
     bot.remove_plugin(plugin)

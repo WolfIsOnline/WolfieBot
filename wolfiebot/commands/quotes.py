@@ -36,6 +36,7 @@ async def quote(ctx: lightbulb.Context):
     if user is not None:
         user_quotes = await get_quote_from_user(user_id=user.id, guild_id=guild_id)
         user_quote = await get_random_quote(quotes=user_quotes)
+        name = f"<@{user.id}>"
     else:
         wildcard_quote = await get_random_wildcard_quote(guild_id=guild_id)
         quote_user_id = wildcard_quote.get("quote_user_id")

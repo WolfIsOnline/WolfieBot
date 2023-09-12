@@ -5,6 +5,7 @@ import logging
 import hikari
 import lightbulb
 import pytz
+
 # pylint: disable=no-name-in-module, import-error
 from wolfiebot.database.database import Database
 
@@ -13,7 +14,7 @@ plugin = lightbulb.Plugin("core.logs")
 database = Database()
 
 TIME_FORMAT = "%b %m, %Y @ %I:%M:%S%p %Z"
-
+TIMEZONE = "America/New_york"
 REMOVE_COLOR = 0xFFFFFF
 ADDITION_COLOR = 0x2ECC71
 CHANGE_COLOR = 0x1ABC9C
@@ -33,11 +34,11 @@ async def member_join(event) -> None:
     """
     member = event.user
     guild_id = event.guild_id
+    creation_date = member.created_at.astimezone(pytz.timezone(TIMEZONE)).strftime(TIME_FORMAT)
     embed = hikari.Embed(color=ADDITION_COLOR,
                          title="Member Joined", description=f"{member} joined")
     embed.set_author(name=f"{member}", icon=member.display_avatar_url)
-    embed.add_field(name="Account created", value=member.created_at.astimezone(
-        pytz.timezone("America/New_York")).strftime(TIME_FORMAT))
+    embed.add_field(name="Account created", value=creation_date)
     embed.set_footer(text=f"Account ID: {member.id}")
     await plugin.bot.rest.create_message(database.read_guild_data(guild_id, "logs_channel"), embed)
 
@@ -78,9 +79,10 @@ async def member_edit(event) -> None:
     Returns:
         None
     """
-    member = event.author
-    if member.is_bot is True:
+    if event.author is None or event.author.is_bot is True:
         return
+
+    member = event.author
 
     guild_id = event.guild_id
     embed = hikari.Embed(color=CHANGE_COLOR, title="Message Edited")
@@ -102,9 +104,10 @@ async def member_delete(event) -> None:
     Returns:
         None
     """
-    member = event.old_message.author
-    if member.is_bot is True:
+    if event.old_message is None or event.old_message.author.is_bot is True:
         return
+
+    member = event.old_message.author
     guild_id = event.guild_id
     embed = hikari.Embed(color=REMOVE_COLOR, title="Message Deleted",
                          description=event.old_message.content)

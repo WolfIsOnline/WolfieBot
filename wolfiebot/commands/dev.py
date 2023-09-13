@@ -7,15 +7,19 @@ import hikari
 import lightbulb
 import psutil
 # pylint: disable=no-name-in-module, import-error, unused-import
+from wolfiebot.commands.quotes import get_quote_from_user
 import wolfiebot
 from wolfiebot.core.bank import Bank
 from wolfiebot.database.database import Database
 from wolfiebot.ai.api import Api
+from wolfiebot.ai.simple_api import Simple_API
+from lightbulb.utils import pag, nav
 
 log = logging.getLogger(__name__)
 plugin = lightbulb.Plugin("commands.dev")
 database = Database()
 api = Api()
+simple_api = Simple_API()
 
 
 @plugin.command
@@ -193,9 +197,31 @@ async def info(ctx: lightbulb.Context):
 
 @dev.child
 @lightbulb.add_checks(lightbulb.owner_only)
+@lightbulb.option("user", "Select User", type=hikari.User, required=True)
+@lightbulb.command("all_quotes", "Get all quotes from user")
+@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+async def all_quotes(ctx: lightbulb.Context):
+    """
+    Retrieve all quotes from a specific user within the guild and display them in pages.
+
+    Args:
+        ctx (lightbulb.Context): The command context.
+    """
+    user_id = ctx.options.user.id
+    guild_id = ctx.get_guild().id
+    _quotes = await get_quote_from_user(user_id=user_id, guild_id=guild_id)
+    pages = pag.StringPaginator(max_lines=20)
+    for index, quote in enumerate(_quotes, start=1):
+        pages.add_line(f"**{index}.** \"{quote}\"")
+
+    navigator = nav.ButtonNavigator(pages.build_pages())
+    await navigator.run(ctx)
+
+@dev.child
+@lightbulb.add_checks(lightbulb.owner_only)
 @lightbulb.option("level", "level", type=int, required=True)
 @lightbulb.option("user", "Select User", type=hikari.User, required=True)
-@lightbulb.command("set_level", "Set level multiplier")
+@lightbulb.command("set_level", "Set level multiplier", auto_defer=True)
 @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
 async def set_level(ctx: lightbulb.Context) -> None:
     """
@@ -207,9 +233,6 @@ async def set_level(ctx: lightbulb.Context) -> None:
 
     Args:
         ctx (lightbulb.Context): The command invocation context.
-
-    Returns:
-        None: The function doesn't return any value.
     """
     level = ctx.options.level
     user = ctx.options.user
@@ -217,6 +240,7 @@ async def set_level(ctx: lightbulb.Context) -> None:
     # pylint: disable=no-member
     exp_required = await wolfiebot.core.levels.get_exp_required(level)
     await wolfiebot.core.levels.set_exp(user_id=user.id, exp=exp_required, channel_id=channel_id)
+    await ctx.respond("✅", delete_after=1)
 
 def notify(message):
     """

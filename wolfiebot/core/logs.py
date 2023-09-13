@@ -79,7 +79,7 @@ async def member_edit(event) -> None:
     Returns:
         None
     """
-    if event.author is None or event.author.is_bot is True:
+    if event.author or event.author.is_bot is True:
         return
 
     member = event.author

@@ -7,7 +7,7 @@ import lightbulb
 
 # pylint: disable=import-error, no-name-in-module
 from wolfiebot.database.database import Database
-from wolfiebot.ai.api import Simple_API
+from wolfiebot.ai.simple_api import Simple_API
 
 log = logging.getLogger(__name__)
 plugin = lightbulb.Plugin("core.welcome")

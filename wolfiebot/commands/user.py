@@ -37,6 +37,25 @@ async def avatar(ctx: lightbulb.Context):
 
     await ctx.respond(f"{avatar_url}")
 
+@plugin.command
+@lightbulb.command("info", "Info about Wolfie")
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+async def info(ctx: lightbulb.Context):
+    """
+    Provides information about the Wolfie bot.
+
+    Args:
+        ctx (lightbulb.Context): The command context.
+    """
+    version = f"Version: {wolfiebot.__version__}"
+    devs = f"Developer: {wolfiebot.__authors__}"
+    home_server = "Home Server: https://discord.gg/eMWNjfSmtm"
+    embed = hikari.Embed(
+        description=f"{version}\n{devs}\n{home_server}",
+        color=wolfiebot.DEFAULT_COLOR
+    )
+    await ctx.respond(embed=embed)
+
 def notify(message):
     """
     Create an embed notification.

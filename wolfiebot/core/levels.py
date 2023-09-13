@@ -11,11 +11,13 @@ import hikari
 import wolfiebot
 from wolfiebot.database.database import Database
 from wolfiebot.core.bank import Bank
+from wolfiebot.ai.simple_api import Simple_API
 
 log = logging.getLogger(__name__)
 plugin = lightbulb.Plugin("core.levels")
 database = Database()
 bank = Bank()
+simple_api = Simple_API()
 
 BASE_VALUE = 25
 EXPONENT = 1.5
@@ -182,6 +184,16 @@ async def notify_level_up(user_id: int, channel_id: int) -> None:
     member = plugin.bot.cache.get_member(GUILD_ID, user_id)
     bank.deposit(user_id=user_id, amount=reward, statement="reward for leveling")
 
+    session = await simple_api.open_session({
+        user_id: user_id
+    })
+    session_id = session.get("name")
+    character_id = session.get("sessionCharacters", [])[0].get("character", None)
+
+    response = await simple_api.send_trigger_message(session_id=session_id, character_id=character_id, trigger="level_up")
+    text_list = response.get("textList")
+    combine_text = "".join(text_list)
+
     embed = hikari.Embed(
         title="Promoted!",
         description=f"You are now level **{level}**",
@@ -199,6 +211,13 @@ async def notify_level_up(user_id: int, channel_id: int) -> None:
             name="Rewards:",
             value=f"**+{wolfiebot.CURRENCY_SYMBOL}{reward:,}** added\n{role.mention} given"
         )
+
+
+    await plugin.bot.rest.create_message(
+        channel=channel_id,
+        embed=embed,
+        content=f"<@{user_id}> {combine_text}"
+    )
 
 async def calculate_role(level: int) -> int:
     """

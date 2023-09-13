@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv, find_dotenv
 
-__version__ = "2.1.1"
+__version__ = "2.2.0-devbuild"
 __authors__ = "WolfIsOnline"
 __description__ = "I'm here to help you out!"
 

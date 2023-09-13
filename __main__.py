@@ -49,7 +49,7 @@ core = ["quotes", "rooms", "logs", "welcome", "autorole", "levels"]
 for c in core:
     bot.load_extensions(f"wolfiebot.core.{c}")
 
-commands = ["user", "dev", "admin", "economy", "owner"]
+commands = ["user", "dev", "admin", "economy", "owner", "quotes"]
 for c in commands:
     bot.load_extensions(f"wolfiebot.commands.{c}")
 

@@ -3,7 +3,7 @@ from dotenv import load_dotenv, find_dotenv
 
 __version__ = "2.2.0-devbuild"
 __authors__ = "WolfIsOnline"
-__description__ = "I'm here to help you out!"
+__description__ = "Wolfie is an AI conversational bot with its own personality."
 
 # load .env file
 load_dotenv(find_dotenv())

@@ -6,8 +6,8 @@ import logging
 import hikari
 import lightbulb
 from hikari.permissions import Permissions
-import wolfiebot
 # pylint: disable=no-name-in-module, import-error
+import wolfiebot
 from wolfiebot.database.database import Database
 
 log = logging.getLogger(__name__)

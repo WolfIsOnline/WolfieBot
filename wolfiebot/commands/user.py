@@ -1,10 +1,13 @@
 """
 User Commands
 """
+import sys
 import logging
 import hikari
 import lightbulb
+# pylint: disable=no-name-in-module, import-error
 import wolfiebot
+
 
 # pylint: disable=no-name-in-module, import-error
 from wolfiebot.database.database import Database
@@ -47,14 +50,33 @@ async def info(ctx: lightbulb.Context):
     Args:
         ctx (lightbulb.Context): The command context.
     """
-    version = f"Version: {wolfiebot.__version__}"
-    devs = f"Developer: {wolfiebot.__authors__}"
-    home_server = "Home Server: https://discord.gg/eMWNjfSmtm"
+    python_version = sys.version_info
     embed = hikari.Embed(
-        description=f"{version}\n{devs}\n{home_server}",
+        title="About Wolfie",
+        description=wolfiebot.__description__,
         color=wolfiebot.DEFAULT_COLOR
     )
+    embed.add_field("Wolfie version", wolfiebot.__version__, inline=True)
+    embed.add_field("Python", f"[{python_version.major}.{python_version.minor}.{python_version.micro}](https://python.org)", inline=True)
+    embed.add_field("Hikari", f"[{hikari.__version__}](https://github.com/hikari-py/hikari)", inline=True)
     await ctx.respond(embed=embed)
+
+
+@plugin.command
+@lightbulb.option("user", "Select a member", type=hikari.User, required=False)
+@lightbulb.command("profile", "Info about Wolfie")
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+async def profile(ctx: lightbulb.Context):
+    user_id = ctx.author.id
+    embed = hikari.Embed(
+        title=f"{ctx.author}'s Profile",
+        color=wolfiebot.DEFAULT_COLOR
+    )
+    embed.add_field("Level", database.read_user_data(user_id, "level"), inline=True)
+    embed.add_field("XP", database.read_user_data(user_id, "xp"), inline=True)
+    embed.add_field("Balance", database.read_user_data(user_id, "balance"))
+    embed.add_field("Casino Balance", database.read_user_data(user_id, "casino_balance"))
+
 
 def notify(message):
     """

@@ -216,7 +216,7 @@ async def notify_level_up(user_id: int, channel_id: int) -> None:
     await plugin.bot.rest.create_message(
         channel=channel_id,
         embed=embed,
-        content=f"<@{user_id}> {combine_text}"
+        content=f"<@{user_id}> {combine_text}",
     )
 
 async def calculate_role(level: int) -> int:

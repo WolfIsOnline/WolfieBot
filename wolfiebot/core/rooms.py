@@ -62,6 +62,7 @@ async def create_room(event, parent_channel_id):
     Returns:
         None
     """
+
     parent_channel = plugin.bot.cache.get_guild_channel(parent_channel_id)
     member = plugin.bot.cache.get_member(event.guild_id, event.state.user_id)
     name = member.nickname
@@ -69,7 +70,7 @@ async def create_room(event, parent_channel_id):
         name = member
     channel = await event.app.rest.create_guild_voice_channel(
             event.guild_id,
-            f"{name}'s Room",
+            f"{name}'s VC",
             user_limit=parent_channel.user_limit,
             bitrate=parent_channel.bitrate,
             video_quality_mode=parent_channel.video_quality_mode,

@@ -45,7 +45,7 @@ async def start(event) -> None:
                             ),
         )
 
-core = ["quotes", "rooms", "logs", "welcome", "autorole", "levels"]
+core = ["quotes", "rooms", "logs", "welcome", "autorole", "levels", "stats"]
 for c in core:
     bot.load_extensions(f"wolfiebot.core.{c}")
 

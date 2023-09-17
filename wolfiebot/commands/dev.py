@@ -11,14 +11,12 @@ from wolfiebot.commands.quotes import get_quote_from_user
 import wolfiebot
 from wolfiebot.core.bank import Bank
 from wolfiebot.database.database import Database
-from wolfiebot.ai.api import Api
 from wolfiebot.ai.simple_api import Simple_API
 from lightbulb.utils import pag, nav
 
 log = logging.getLogger(__name__)
 plugin = lightbulb.Plugin("commands.dev")
 database = Database()
-api = Api()
 simple_api = Simple_API()
 
 
@@ -236,10 +234,10 @@ async def set_level(ctx: lightbulb.Context) -> None:
     """
     level = ctx.options.level
     user = ctx.options.user
+    guild_id = ctx.get_guild().id
     channel_id = ctx.get_channel().id
-    # pylint: disable=no-member
     exp_required = await wolfiebot.core.levels.get_exp_required(level)
-    await wolfiebot.core.levels.set_exp(user_id=user.id, exp=exp_required, channel_id=channel_id)
+    await wolfiebot.core.levels.set_exp(user_id=user.id, exp=exp_required, channel_id=channel_id, guild_id=guild_id)
     await ctx.respond("✅", delete_after=1)
 
 def notify(message):

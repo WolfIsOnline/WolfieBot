@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv, find_dotenv
 
-__version__ = "2.2.0-alpha"
+__version__ = "2.2.1-alpha"
 __authors__ = "WolfIsOnline"
 __description__ = "Wolfie is an AI conversational bot with its own personality."
 

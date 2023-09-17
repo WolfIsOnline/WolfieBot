@@ -11,14 +11,12 @@ from wolfiebot.commands.quotes import get_quote_from_user
 import wolfiebot
 from wolfiebot.core.bank import Bank
 from wolfiebot.database.database import Database
-from wolfiebot.ai.api import Api
 from wolfiebot.ai.simple_api import Simple_API
 from lightbulb.utils import pag, nav
 
 log = logging.getLogger(__name__)
 plugin = lightbulb.Plugin("commands.dev")
 database = Database()
-api = Api()
 simple_api = Simple_API()
 
 

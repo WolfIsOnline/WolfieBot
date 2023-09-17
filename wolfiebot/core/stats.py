@@ -14,7 +14,6 @@ async def listen(event):
     if event.is_bot is True or event.message.content.startswith("!"):
         return
 
-
     user_id = event.author.id
     messages = database.read_user_data(user_id, "messages")
     if messages is None:
@@ -23,7 +22,7 @@ async def listen(event):
     database.edit_user_data(user_id, "messages", messages)
 
 async def get_all_messages(user_id):
-    messages = 0
+    pass
 
 def load(bot: lightbulb.BotApp) -> None:
     """

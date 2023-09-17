@@ -1,31 +1,76 @@
+"""
+Welcome extension
+"""
 import logging
 import hikari
-import wolfiebot
 import lightbulb
 
+# pylint: disable=import-error, no-name-in-module
 from wolfiebot.database.database import Database
+from wolfiebot.ai.simple_api import Simple_API
 
 log = logging.getLogger(__name__)
 plugin = lightbulb.Plugin("core.welcome")
-db = Database()
+database = Database()
+simple_api = Simple_API()
+
+SCENE_ID = "workspaces/default-firdbgosgclm_v_vu5dcnw/scenes/discord"
+CHARACTER_ID = "-1"
 
 @plugin.listener(hikari.MemberCreateEvent)
-async def member_join(event):
-    member = event.user
+async def user_join(event):
+    """
+    Handles the user join event and sends a welcome message.
+
+    Args:
+        event: The event object representing the user join event.
+
+    Returns:
+        None
+    """
+    user = event.user
+    user_id = user.id
     guild_id = event.guild_id
-    guild = plugin.bot.cache.get_guild(guild_id)
-    embed = hikari.Embed(color=wolfiebot.DEFAULT_COLOR, title="Welcome to Nocturnal Gamers", description=f"Hi {member.mention}\n\n• **I hope you enjoy your stay!**\n\n• **Check out the following channels.**\n\n<a:ng_bluearrowright:996149975471902760> Current free games <#967074827108245554>\n\n<a:ng_bluearrowright:996149975471902760> Newest <#973745210016280577>",)
-    embed.set_author(name=f"{guild}", icon=guild.icon_url)
-    embed.set_thumbnail(member.display_avatar_url)
-    try:
-        embed.set_image(guild.banner_url)
-    except:
-        pass
-    
-    await plugin.bot.rest.create_message(db.read_guild_data(guild_id, "welcome_channel"), embed)
-    
+    welcome_channel = database.read_guild_data(guild_id=guild_id, name="welcome_channel")
+
+    session = await simple_api.open_session({
+        user_id: user_id
+    })
+    session_id = session.get("name")
+    character_id = session.get("sessionCharacters", [])[0].get("character", None)
+
+    response = await simple_api.send_trigger_message(
+        session_id=session_id,
+        character_id=character_id,
+        trigger="welcome"
+    )
+
+    text_list = response.get("textList")
+    combine_text = "".join(text_list)
+
+    await plugin.bot.rest.create_message(
+        channel=welcome_channel,
+        content=f"<@{user_id}> {combine_text}"
+    )
+
 def load(bot: lightbulb.BotApp):
+    """
+    Loads the plugin into the bot.
+
+    Parameters:
+    - bot (lightbulb.BotApp): The bot instance.
+
+    """
     bot.add_plugin(plugin)
 
 def unload(bot: lightbulb.BotApp):
+    """
+    Unloads the plugin from the specified bot.
+
+    Args:
+        bot (lightbulb.BotApp): The bot instance to unload the plugin from.
+
+    Returns:
+        None
+    """
     bot.remove_plugin(plugin)

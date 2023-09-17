@@ -1,19 +1,18 @@
 import os
 from dotenv import load_dotenv, find_dotenv
 
-__version__ = "2.1.1"
+__version__ = "2.2.0-alpha"
 __authors__ = "WolfIsOnline"
-__description__ = "A multi-tool bot with an emphasis on economy"
-
+__description__ = "Wolfie is an AI conversational bot with its own personality."
 
 # load .env file
 load_dotenv(find_dotenv())
 MONGODB_CONNECTION = os.environ.get("MONGODB_CONNECTION")
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY")
 DISCORD_API_KEY = os.environ.get("DISCORD_API_KEY")
 WEBHOOK_ID = os.environ.get("WEBHOOK_ID")
 WEBHOOK_TOKEN = os.environ.get("WEBHOOK_TOKEN")
+INWORLD_KEY = os.environ.get("INWORLD_KEY")
 
 PAYDAY = 1000
 DEFAULT_COLOR = 0x02e7e7

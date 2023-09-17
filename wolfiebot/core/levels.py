@@ -21,7 +21,6 @@ simple_api = Simple_API()
 
 BASE_VALUE = 25
 EXPONENT = 1.5
-GUILD_ID = 851644348281258035
 
 @plugin.listener(hikari.GuildMessageCreateEvent)
 async def on_message(event) -> None:
@@ -40,16 +39,17 @@ async def on_message(event) -> None:
     user_id = event.author.id
     content = event.message.content
     bot_id = plugin.bot.get_me().id
+    guild_id = event.guild_id
 
     try:
-        if user_id == bot_id or content is None or content.startswith("!"):
+        if content is None or content.startswith("!") or content.startswith("$") or event.is_bot is True:
             return None
 
     except AttributeError():
         pass
 
     await add_exp(user_id=user_id, increment=1)
-    await update_level(user_id=user_id, channel_id=event.get_channel().id)
+    await update_level(user_id=user_id, channel_id=event.get_channel().id, guild_id=guild_id)
     exp = await get_exp(user_id)
     level = await get_level(user_id)
     exp_needed = await get_exp_required(level + 1)
@@ -72,7 +72,7 @@ async def add_exp(user_id: int, increment: int) -> None:
     exp += increment
     database.edit_user_data(user_id=user_id, name="xp", value=exp)
 
-async def set_exp(user_id: int, exp: int, channel_id: int) -> None:
+async def set_exp(user_id: int, exp: int, channel_id: int, guild_id: int) -> None:
     """
     Sets the experience points (exp) for the specified user ID and updates the level.
 
@@ -85,7 +85,7 @@ async def set_exp(user_id: int, exp: int, channel_id: int) -> None:
         None
     """
     database.edit_user_data(user_id=user_id, name="xp", value=exp)
-    await update_level(user_id=user_id, channel_id=channel_id)
+    await update_level(user_id=user_id, channel_id=channel_id, guild_id=guild_id)
 
 async def take_exp(user_id: int, increment: int) -> None:
     """
@@ -143,7 +143,7 @@ async def get_level(user_id: int) -> int:
         level = 0
     return level
 
-async def update_level(user_id: int, channel_id: int) -> None:
+async def update_level(user_id: int, channel_id: int, guild_id: int) -> None:
     """
     Update the user's level.
 
@@ -162,9 +162,9 @@ async def update_level(user_id: int, channel_id: int) -> None:
     level = await calculate_level(exp=current_exp)
     if current_level != level:
         database.edit_user_data(user_id=user_id, name="level", value=level)
-        await notify_level_up(user_id=user_id, channel_id=channel_id)
+        await notify_level_up(user_id=user_id, channel_id=channel_id, guild_id=guild_id)
 
-async def notify_level_up(user_id: int, channel_id: int) -> None:
+async def notify_level_up(user_id: int, channel_id: int, guild_id: int) -> None:
     """
     Notifies the user about a level up and provides rewards.
 
@@ -181,8 +181,9 @@ async def notify_level_up(user_id: int, channel_id: int) -> None:
 
     log.info(role_id)
     user = plugin.bot.cache.get_user(user_id)
-    member = plugin.bot.cache.get_member(GUILD_ID, user_id)
+    member = plugin.bot.cache.get_member(guild_id, user_id)
     bank.deposit(user_id=user_id, amount=reward, statement="reward for leveling")
+    log.info(f"notify_level_up::{guild_id}")
 
     session = await simple_api.open_session({
         user_id: user_id
@@ -218,6 +219,7 @@ async def notify_level_up(user_id: int, channel_id: int) -> None:
         embed=embed,
         content=f"<@{user_id}> {combine_text}",
     )
+    log.info("ENDED")
 
 async def calculate_role(level: int) -> int:
     """

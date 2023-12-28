@@ -8,7 +8,7 @@ import re
 import time
 import asyncio
 
-from wolfiebot.ai.chat_manager import ChatManager
+from wolfiebot.ai.chat_manager import AIManager
 plugin = lightbulb.Plugin("ai.chat")
 log = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ async def direct_listen(event) -> None:
 
 async def chat(event) -> None:
     message = re.sub(r"<.*?>", "", event.message.content)
-    manager = ChatManager(event.author.id)
+    manager = AIManager(event.author.id)
     async with plugin.bot.rest.trigger_typing(event.channel_id):
         reply = await manager.send_message(message)
 

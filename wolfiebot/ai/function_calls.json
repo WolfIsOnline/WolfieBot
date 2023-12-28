@@ -1,0 +1,48 @@
+[
+    {
+        "name": "_write_to_brain",
+        "description": "this function will write a value to the database that you will be able to retrieve later. Anything that you need to remember long term call this function to store what you want to know later.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "data_name": {
+                    "type": "string",
+                    "description": "the name of the data"
+                },
+                "data_value" : {
+                    "type" : "string",
+                    "description" : "the value that data_name will hold"
+                }
+            },
+            "required": [
+                "data_name",
+                "data_value"
+            ]
+        }
+    },
+
+    {
+        "name": "_retrieve_from_brain",
+        "description": "Execute this function when you cannot remember something the users has told you. This will give you a bunch of information that is stored in the users database.",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+            "required": []
+        }
+    },
+
+    {
+        "name": "_delete_from_brain",
+        "description": "Execute this function when you or the user wants to delete something in your brain.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "data_name" : {
+                    "type" : "string",
+                    "description" : "the name of the data you want to delete"
+                }
+            },
+            "required" : ["data_name"]
+        }
+    }
+]

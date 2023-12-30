@@ -1,265 +1,284 @@
-"""
-Dev Commands
-"""
-import logging
+"""Development Commands"""
 import datetime
+import psutil
+
 import hikari
 import lightbulb
-import psutil
-# pylint: disable=no-name-in-module, import-error, unused-import
-from wolfiebot.commands.quotes import get_quote_from_user
-import wolfiebot
-from wolfiebot.core.bank import Bank
-from wolfiebot.database.database import Database
-from wolfiebot.ai.simple_api import Simple_API
 from lightbulb.utils import pag, nav
 
-log = logging.getLogger(__name__)
-plugin = lightbulb.Plugin("commands.dev")
-database = Database()
-simple_api = Simple_API()
+import wolfiebot
+from wolfiebot.commands.quotes import get_quote_from_user
+from wolfiebot.core.bank import Bank
+from wolfiebot.database.database import UserData
 
 
-@plugin.command
-@lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.command("dev", "dev commands")
-@lightbulb.implements(lightbulb.PrefixCommandGroup, lightbulb.SlashCommandGroup)
-async def dev(ctx: lightbulb.Context):
-    """
-    Command group for development-related commands.
+class Dev(lightbulb.Plugin):
+    """All dev commands"""
 
-    This command group is restricted to the bot owner.
+    def __init__(self):
+        super().__init__("commands.dev")
+        self.command(self._dev)
 
-    Args:
-        ctx (lightbulb.Context): The command invocation context.
+    @lightbulb.add_checks(lightbulb.owner_only)
+    @lightbulb.command("dev", "dev commands")
+    @lightbulb.implements(lightbulb.PrefixCommandGroup, lightbulb.SlashCommandGroup)
+    async def _dev(self) -> None:
+        """
+        Command group for development-related commands.
+        This command group is restricted to the bot owner.
 
-    Returns:
-        None
-    """
-    return None
+        Returns:
+            None
+        """
+        return None
 
-@dev.child
-@lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.option("status", "Status Messsage", type=str, required=True)
-@lightbulb.command("setstatus", "Set bot status")
-@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
-async def set_status(ctx: lightbulb.Context):
-    """
-    Command to set the bot's status.
+    @_dev.child
+    @lightbulb.add_checks(lightbulb.owner_only)
+    @lightbulb.option("user", "User", type=hikari.User, required=True)
+    @lightbulb.command("balance", "Display user balance")
+    @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+    async def _dev_balance(self, ctx: lightbulb.Context):
+        user_id = ctx.options.user.id
+        account = Bank(user_id)
 
-    This command is restricted to the bot owner
-    and requires a status message to be provided as an option.
+        embed = hikari.Embed(
+            title="Nocturnia Bank - Dev Tools",
+            description=f"Available Balance: **{wolfiebot.CURRENCY_SYMBOL}{account.balance:,}**",
+            color=0x000000,
+        )
+        embed.set_author(
+            name=f"{ctx.options.user}", icon=ctx.options.user.display_avatar_url
+        )
+        await ctx.respond(embed)
 
-    Args:
-        ctx (lightbulb.Context): The command invocation context.
+    @_dev.child
+    @lightbulb.add_checks(lightbulb.owner_only)
+    @lightbulb.option("status", "Status Messsage", type=str, required=True)
+    @lightbulb.command("setstatus", "Set bot status")
+    @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+    async def _set_status(self, ctx: lightbulb.Context):
+        """
+        Command to set the bot's status.
 
-    Returns:
-        None
-    """
-    await plugin.bot.update_presence(
-        status=hikari.Status.ONLINE,
-        activity=hikari.Activity(
-            name=ctx.options.status,
-            type=hikari.ActivityType.PLAYING,
-        ),
-    )
-    database.edit_user_data(plugin.bot.get_me().id,
-                            "status", ctx.options.status)
-    await ctx.respond(notify("presence updated!"))
+        This command is restricted to the bot owner
+        and requires a status message to be provided as an option.
 
-@dev.child
-@lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.option("extension", "Extension", type=str, required=True)
-@lightbulb.command("load", "Load an entension")
-@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
-async def load_ext(ctx: lightbulb.Context):
-    """
-    Command to load an extension.
+        Args:
+            ctx (lightbulb.Context): The command invocation context.
 
-    This command is restricted to the bot owner
-    and requires the name of the extension to be provided as an option.
+        Returns:
+            None
+        """
+        await plugin.bot.update_presence(
+            status=hikari.Status.ONLINE,
+            activity=hikari.Activity(
+                name=ctx.options.status,
+                type=hikari.ActivityType.PLAYING,
+            ),
+        )
+        user = UserData(plugin.bot.get_me().id)
+        user.edit("status", ctx.options.status)
+        await ctx.respond(self.notify("presence updated!"))
 
-    Args:
-        ctx (lightbulb.Context): The command invocation context.
+    @_dev.child
+    @lightbulb.add_checks(lightbulb.owner_only)
+    @lightbulb.option("extension", "Extension", type=str, required=True)
+    @lightbulb.command("load", "Load an entension")
+    @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+    async def _load_ext(self, ctx: lightbulb.Context):
+        """
+        Command to load an extension.
 
-    Returns:
-        None
-    """
-    plugin.bot.load_extensions(f"wolfiebot.{ctx.options.extension}")
-    await ctx.respond(notify(f"{ctx.options.extension} loaded"))
+        This command is restricted to the bot owner
+        and requires the name of the extension to be provided as an option.
 
-@dev.child
-@lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.option("extension", "Extension", type=str, required=True)
-@lightbulb.command("unload", "Unload an extension")
-@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
-async def unload_ext(ctx: lightbulb.Context):
-    """
-    Command to unload an extension.
+        Args:
+            ctx (lightbulb.Context): The command invocation context.
 
-    This command is restricted to the bot owner
-    and requires the name of the extension to be provided as an option.
+        Returns:
+            None
+        """
+        plugin.bot.load_extensions(f"wolfiebot.{ctx.options.extension}")
+        await ctx.respond(self.notify(f"{ctx.options.extension} loaded"))
 
-    Args:
-        ctx (lightbulb.Context): The command invocation context.
+    @_dev.child
+    @lightbulb.add_checks(lightbulb.owner_only)
+    @lightbulb.option("extension", "Extension", type=str, required=True)
+    @lightbulb.command("unload", "Unload an extension")
+    @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+    async def _unload_ext(self, ctx: lightbulb.Context):
+        """
+        Command to unload an extension.
 
-    Returns:
-        None
-    """
-    plugin.bot.unload_extensions(f"wolfiebot.{ctx.options.extension}")
-    await ctx.respond(notify(f"{ctx.options.extension} unloaded"))
+        This command is restricted to the bot owner
+        and requires the name of the extension to be provided as an option.
 
-@dev.child
-@lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.option("extension", "Extension", type=str, required=True)
-@lightbulb.command("reload", "Reload an extension")
-@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
-async def reload_ext(ctx: lightbulb.Context):
-    """
-    Command to reload an extension.
+        Args:
+            ctx (lightbulb.Context): The command invocation context.
 
-    This command is restricted to the bot owner
-    and requires the name of the extension to be provided as an option.
+        Returns:
+            None
+        """
+        plugin.bot.unload_extensions(f"wolfiebot.{ctx.options.extension}")
+        await ctx.respond(self.notify(f"{ctx.options.extension} unloaded"))
 
-    Args:
-        ctx (lightbulb.Context): The command invocation context.
+    @_dev.child
+    @lightbulb.add_checks(lightbulb.owner_only)
+    @lightbulb.option("extension", "Extension", type=str, required=True)
+    @lightbulb.command("reload", "Reload an extension")
+    @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+    async def _reload_ext(self, ctx: lightbulb.Context):
+        """
+        Command to reload an extension.
 
-    Returns:
-        None
-    """
-    plugin.bot.unload_extensions(f"wolfiebot.{ctx.options.extension}")
-    plugin.bot.load_extensions(f"wolfiebot.{ctx.options.extension}")
-    await ctx.respond(notify(f"{ctx.options.extension} reloaded :arrows_clockwise:"))
+        This command is restricted to the bot owner
+        and requires the name of the extension to be provided as an option.
 
-@dev.child
-@lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.option("toggle", "True/False", type=bool, required=True)
-@lightbulb.command("voice", "Turn wolfie voice off")
-@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
-async def voice(ctx: lightbulb.Context):
-    """
-    Command to turn off Wolfie voice.
+        Args:
+            ctx (lightbulb.Context): The command invocation context.
 
-    This command is restricted to the bot owner
-    and requires a boolean toggle option (`True` or `False`) to be provided.
-    It sets the voice state of the bot to the specified toggle value in the user data.
+        Returns:
+            None
+        """
+        plugin.bot.unload_extensions(f"wolfiebot.{ctx.options.extension}")
+        plugin.bot.load_extensions(f"wolfiebot.{ctx.options.extension}")
+        await ctx.respond(
+            self.notify(f"{ctx.options.extension} reloaded :arrows_clockwise:")
+        )
 
-    Args:
-        ctx (lightbulb.Context): The command invocation context.
+    @_dev.child
+    @lightbulb.add_checks(lightbulb.owner_only)
+    @lightbulb.option("toggle", "True/False", type=bool, required=True)
+    @lightbulb.command("voice", "Turn wolfie voice off")
+    @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+    async def _voice(self, ctx: lightbulb.Context):
+        """
+        Command to turn off Wolfie voice.
 
-    Returns:
-        None
-    """
-    database.edit_user_data(plugin.bot.get_me().id,
-                            "voice_state", ctx.options.toggle)
-    await ctx.respond(notify(f"send voice set to {ctx.options.toggle}"))
+        This command is restricted to the bot owner
+        and requires a boolean toggle option (`True` or `False`) to be provided.
+        It sets the voice state of the bot to the specified toggle value in the user data.
 
-@dev.child
-@lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.command("info", "Detailed information")
-@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
-async def info(ctx: lightbulb.Context):
-    """
-    Command to display detailed information about the system.
+        Args:
+            ctx (lightbulb.Context): The command invocation context.
 
-    This command is restricted to the bot owner.
-    It retrieves and displays information about CPU usage, memory usage, and the operating system.
-    The information is formatted into an embed and sent as a response.
+        Returns:
+            None
+        """
+        user = UserData(plugin.bot.get_me().id)
+        user.edit("voice_state", ctx.options.toggle)
+        await ctx.respond(self.notify(f"send voice set to {ctx.options.toggle}"))
 
-    Args:
-        ctx (lightbulb.Context): The command invocation context.
+    @_dev.child
+    @lightbulb.add_checks(lightbulb.owner_only)
+    @lightbulb.command("info", "Detailed information")
+    @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+    async def _info(self, ctx: lightbulb.Context):
+        """
+        Command to display detailed information about the system.
 
-    Returns:
-        None
-    """
-    cpu_percent = psutil.cpu_percent(interval=1, percpu=True)
-    min_cpu_percent = round(min(cpu_percent))
-    max_cpu_percent = round(max(cpu_percent))
-    avg_cpu_percent = round(sum(cpu_percent) / len(cpu_percent))
+        This command is restricted to the bot owner.
+        It retrieves and displays information about CPU usage, memory usage, and the operating system.
+        The information is formatted into an embed and sent as a response.
 
-    memory = psutil.virtual_memory()
-    total_memory_gb = round(memory.total / (1024 ** 3), 2)
-    available_memory_gb = round(memory.available / (1024 ** 3), 2)
-    used_memory_gb = round(memory.used / (1024 ** 3), 2)
+        Args:
+            ctx (lightbulb.Context): The command invocation context.
 
-    os_info = psutil.sys.platform
-    boot_time = psutil.boot_time()
-    os_uptime = datetime.datetime.now() - datetime.datetime.fromtimestamp(boot_time)
+        Returns:
+            None
+        """
+        cpu_percent = psutil.cpu_percent(interval=1, percpu=True)
+        min_cpu_percent = round(min(cpu_percent))
+        max_cpu_percent = round(max(cpu_percent))
+        avg_cpu_percent = round(sum(cpu_percent) / len(cpu_percent))
 
-    memory_format = f"Total: {total_memory_gb}GB\nAvailable: {available_memory_gb}GB\nUsed: {used_memory_gb}GB"
-    cpu_format = f"Min: {min_cpu_percent}%\nAVG: {avg_cpu_percent}%\nMax: {max_cpu_percent}%"
-    os_format = f"OS: {os_info}\nUptime: {os_uptime}"
-    description = f"Memory Usage:\n```{memory_format}```\nCPU Usage:\n ```{cpu_format}```\nOS Info:\n```{os_format}```"
-    embed = hikari.Embed(description=description, color=0x000000)
-    await ctx.respond(embed)
+        memory = psutil.virtual_memory()
+        total_memory_gb = round(memory.total / (1024**3), 2)
+        available_memory_gb = round(memory.available / (1024**3), 2)
+        used_memory_gb = round(memory.used / (1024**3), 2)
 
-@dev.child
-@lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.option("user", "Select User", type=hikari.User, required=True)
-@lightbulb.command("all_quotes", "Get all quotes from user")
-@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
-async def all_quotes(ctx: lightbulb.Context):
-    """
-    Retrieve all quotes from a specific user within the guild and display them in pages.
+        os_info = psutil.sys.platform
+        boot_time = psutil.boot_time()
+        os_uptime = datetime.datetime.now() - datetime.datetime.fromtimestamp(boot_time)
 
-    Args:
-        ctx (lightbulb.Context): The command context.
-    """
-    user_id = ctx.options.user.id
-    guild_id = ctx.get_guild().id
-    _quotes = await get_quote_from_user(user_id=user_id, guild_id=guild_id)
-    pages = pag.StringPaginator(max_lines=20)
-    for index, quote in enumerate(_quotes, start=1):
-        pages.add_line(f"**{index}.** \"{quote}\"")
+        memory_format = f"Total: {total_memory_gb}GB\nAvailable: {available_memory_gb}GB\nUsed: {used_memory_gb}GB"
+        cpu_format = (
+            f"Min: {min_cpu_percent}%\nAVG: {avg_cpu_percent}%\nMax: {max_cpu_percent}%"
+        )
+        os_format = f"OS: {os_info}\nUptime: {os_uptime}"
+        description = f"Memory Usage:\n```{memory_format}```\nCPU Usage:\n ```{cpu_format}```\nOS Info:\n```{os_format}```"
+        embed = hikari.Embed(description=description, color=0x000000)
+        await ctx.respond(embed)
 
-    navigator = nav.ButtonNavigator(pages.build_pages())
-    await navigator.run(ctx)
+    @_dev.child
+    @lightbulb.add_checks(lightbulb.owner_only)
+    @lightbulb.option("user", "Select User", type=hikari.User, required=True)
+    @lightbulb.command("all_quotes", "Get all quotes from user")
+    @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+    async def _all_quotes(self, ctx: lightbulb.Context):
+        """
+        Retrieve all quotes from a specific user within the guild and display them in pages.
 
-@dev.child
-@lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.option("level", "level", type=int, required=True)
-@lightbulb.option("user", "Select User", type=hikari.User, required=True)
-@lightbulb.command("set_level", "Set level multiplier", auto_defer=True)
-@lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
-async def set_level(ctx: lightbulb.Context) -> None:
-    """
-    Set the level for a user.
+        Args:
+            ctx (lightbulb.Context): The command context.
+        """
+        user_id = ctx.options.user.id
+        guild_id = ctx.get_guild().id
+        _quotes = await get_quote_from_user(user_id=user_id, guild_id=guild_id)
+        pages = pag.StringPaginator(max_lines=20)
+        for index, quote in enumerate(_quotes, start=1):
+            pages.add_line(f'**{index}.** "{quote}"')
 
-    Sets the level of a user to the specified value by adjusting their experience points.
-    The required experience points for the specified level are calculated using
-    the level multiplier.
+        navigator = nav.ButtonNavigator(pages.build_pages())
+        await navigator.run(ctx)
 
-    Args:
-        ctx (lightbulb.Context): The command invocation context.
-    """
-    level = ctx.options.level
-    user = ctx.options.user
-    guild_id = ctx.get_guild().id
-    channel_id = ctx.get_channel().id
-    exp_required = await wolfiebot.core.levels.get_exp_required(level)
-    await wolfiebot.core.levels.set_exp(user_id=user.id, exp=exp_required, channel_id=channel_id, guild_id=guild_id)
-    await ctx.respond("✅", delete_after=1)
+    @_dev.child
+    @lightbulb.add_checks(lightbulb.owner_only)
+    @lightbulb.option("level", "level", type=int, required=True)
+    @lightbulb.option("user", "Select User", type=hikari.User, required=True)
+    @lightbulb.command("set_level", "Set level multiplier", auto_defer=True)
+    @lightbulb.implements(lightbulb.PrefixSubCommand, lightbulb.SlashSubCommand)
+    async def _set_level(self, ctx: lightbulb.Context) -> None:
+        """
+        Set the level for a user.
 
-def notify(message):
-    """
-    Creates an embed notification.
+        Sets the level of a user to the specified value by adjusting their experience points.
+        The required experience points for the specified level are calculated using
+        the level multiplier.
 
-    Parameters:
-    - message (str): The content of the notification.
+        Args:
+            ctx (lightbulb.Context): The command invocation context.
+        """
+        level = ctx.options.level
+        user = ctx.options.user
+        guild_id = ctx.get_guild().id
+        channel_id = ctx.get_channel().id
+        exp_required = await wolfiebot.core.levels.get_exp_required(level)
+        await wolfiebot.core.levels.set_exp(
+            user_id=user.id, exp=exp_required, channel_id=channel_id, guild_id=guild_id
+        )
+        await ctx.respond("✅", delete_after=1)
 
-    Returns:
-    - hikari.Embed: The embed notification.
+    def notify(self, message):
+        """
+        Creates an embed notification.
 
-    This function creates an embed notification with the given message and returns it.
-    The embed is styled with a black color and includes the author name set as 'Dev Tools'
-    with the bot's display avatar as the icon.
-    """
-    embed = hikari.Embed(title=message, description="", color=0x000000)
-    embed.set_author(
-        name="Dev Tools",
-        icon=plugin.bot.get_me().display_avatar_url
-    )
-    return embed
+        Parameters:
+        - message (str): The content of the notification.
+
+        Returns:
+        - hikari.Embed: The embed notification.
+
+        This function creates an embed notification with the given message and returns it.
+        The embed is styled with a black color and includes the author name set as 'Dev Tools'
+        with the bot's display avatar as the icon.
+        """
+        embed = hikari.Embed(title=message, description="", color=0x000000)
+        embed.set_author(name="Dev Tools", icon=plugin.bot.get_me().display_avatar_url)
+        return embed
+
+
+plugin = Dev()
 
 
 def load(bot: lightbulb.BotApp):

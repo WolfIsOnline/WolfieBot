@@ -9,7 +9,7 @@
 <!-- PROJECT LOGO -->
 <h3 align="center">MayaAI</h3>
   <p align="center">
-    Maya is an advanced AI assistant crafted to provide engaging, 
+    Maya (formly Wolfie) is an advanced AI assistant crafted to provide engaging, 
     continuous conversations with a personal touch. 
     She combines a friendly tone with the unique capability to recall past interactions, 
     offering insightful responses that enrich dialogue. Maya's inquisitive nature invites users to more meaningful exchanges, 

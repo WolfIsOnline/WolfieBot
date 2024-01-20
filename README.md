@@ -3,8 +3,9 @@
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
+![Static Badge](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge)
+
+
 <!-- PROJECT LOGO -->
 <h3 align="center">MayaAI</h3>
   <p align="center">
@@ -53,3 +54,6 @@
 
 [Lightbulb-url]: https://www.hikari-py.dev/
 [Lightbulb-icon]: https://img.shields.io/badge/lightbulb-ffed00?style=for-the-badge
+
+[code-style]: https://pypi.org/project/black/
+[code-style-url]: https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge

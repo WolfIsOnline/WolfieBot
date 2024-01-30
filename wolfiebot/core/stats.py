@@ -1,28 +1,54 @@
-import logging
+"""Stat tracking"""
 import hikari
 import lightbulb
 
-# pylint: disable=no-name-in-module, import-error, unused-import
-from wolfiebot.database.database import Database
+from wolfiebot.database.database import UserData, GuildData
 
-log = logging.getLogger(__name__)
 plugin = lightbulb.Plugin("core.stats")
-database = Database()
+
+
+class UserStats:
+    def __init__(self, user_id: hikari.Snowflake | int):
+        self.user_data = UserData(user_id=user_id)
+
+    def get_messages(self):
+        messages = self.user_data.retrieve(name="messages")
+        if messages is None:
+            messages = 0
+        return messages
+
+    def update_messages(self, new_value: int):
+        self.user_data.edit(name="messages", value=new_value)
+
+
+class GuildStats:
+    def __init__(self, guild_id: hikari.Snowflake | int):
+        self.guild_data = GuildData(guild_id=guild_id)
+
+    def get_messages(self):
+        messages = self.guild_data.retrieve(name="messages")
+        if messages is None:
+            messages = 0
+        return messages
+
+    def update_messages(self, new_value: int):
+        self.guild_data.edit(name="messages", value=new_value)
+
 
 @plugin.listener(hikari.GuildMessageCreateEvent)
-async def listen(event):
+async def on_message(event):
     if event.is_bot is True or event.message.content.startswith("!"):
         return
 
-    user_id = event.author.id
-    messages = database.read_user_data(user_id, "messages")
-    if messages is None:
-        messages = 0
-    messages += 1
-    database.edit_user_data(user_id, "messages", messages)
+    user_stats = UserStats(user_id=event.author.id)
+    guild_stats = GuildStats(guild_id=event.guild.id)
 
-async def get_all_messages(user_id):
-    pass
+    user_messages = user_stats.get_messages()
+    guild_messages = guild_stats.get_messages()
+
+    user_stats.update_messages(new_value=user_messages + 1)
+    guild_stats.update_messages(new_value=guild_messages + 1)
+
 
 def load(bot: lightbulb.BotApp) -> None:
     """
@@ -35,6 +61,7 @@ def load(bot: lightbulb.BotApp) -> None:
         None
     """
     bot.add_plugin(plugin)
+
 
 def unload(bot: lightbulb.BotApp) -> None:
     """

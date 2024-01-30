@@ -1,31 +1,26 @@
-"""
-Entrance
-"""
-
+"""Entrance"""
 import os
-import logging
 import hikari
 import lightbulb
 import uvloop
 
 from hikari.events.base_events import EventT
 from dotenv import load_dotenv, find_dotenv
-# pylint: disable=no-name-in-module, import-error
-from wolfiebot.database.database import Database
+
+from wolfiebot.database.database import UserData
 
 load_dotenv(find_dotenv())
 DISCORD_API_KEY = os.environ.get("DISCORD_API_KEY")
 
-log = logging.getLogger(__name__)
 bot = lightbulb.BotApp(
     token=DISCORD_API_KEY,
     prefix="!",
     intents=hikari.Intents.ALL,
-    default_enabled_guilds=[],
+    default_enabled_guilds=[851644348281258035],
     help_class=None,
-    logs="INFO"
+    logs=None,
 )
-database = Database()
+
 
 @bot.listen(hikari.StartedEvent)
 async def start(event) -> None:
@@ -38,12 +33,15 @@ async def start(event) -> None:
     Returns:
         None
     """
+    status = UserData(bot.get_me().id).retrieve("status")
     await bot.update_presence(
         status=hikari.Status.ONLINE,
-        activity=hikari.Activity(name=database.read_user_data(bot.get_me().id, "status"),
-                                 type=hikari.ActivityType.PLAYING,
-                            ),
-        )
+        activity=hikari.Activity(
+            name=status,
+            type=hikari.ActivityType.PLAYING,
+        ),
+    )
+
 
 core = ["quotes", "rooms", "logs", "welcome", "autorole", "levels", "stats"]
 for c in core:
@@ -61,6 +59,7 @@ ai = ["chat"]
 for c in ai:
     bot.load_extensions(f"wolfiebot.ai.{c}")
 
+
 @bot.listen(hikari.ExceptionEvent)
 async def on_error(event: hikari.ExceptionEvent[EventT]) -> None:
     """
@@ -76,6 +75,7 @@ async def on_error(event: hikari.ExceptionEvent[EventT]) -> None:
         None
     """
     raise event.exception
+
 
 @bot.listen(lightbulb.CommandErrorEvent)
 async def on_command_error(event: lightbulb.CommandErrorEvent) -> None:
@@ -102,6 +102,7 @@ async def on_command_error(event: lightbulb.CommandErrorEvent) -> None:
         time = await format_time(seconds)
         await event.context.respond(f"Command is on cooldown, retry in {time}")
 
+
 async def format_time(seconds):
     """
     Formats a time duration in seconds into a human-readable string.
@@ -118,11 +119,11 @@ async def format_time(seconds):
     years = int(days // 365)
 
     time_units = [
-        (years, 'year'),
-        (days % 365, 'day'),
-        (hours % 24, 'hour'),
-        (minutes % 60, 'minute'),
-        (int(seconds) % 60, 'second')
+        (years, "year"),
+        (days % 365, "day"),
+        (hours % 24, "hour"),
+        (minutes % 60, "minute"),
+        (int(seconds) % 60, "second"),
     ]
 
     result = []
@@ -130,7 +131,8 @@ async def format_time(seconds):
         if value != 0:
             result.append(f"{value} {unit if value == 1 else unit+'s'}")
 
-    return ', '.join(result)
+    return ", ".join(result)
+
 
 if __name__ == "__main__":
     uvloop.install()

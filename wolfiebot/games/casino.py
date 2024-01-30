@@ -21,7 +21,7 @@ log = Logger(__name__, wolfiebot.LOG_LEVEL)
 @plugin.command
 @lightbulb.command("casino", "Casino commands")
 @lightbulb.implements(lightbulb.PrefixCommandGroup, lightbulb.SlashCommandGroup)
-async def casino(ctx: lightbulb.Context):
+async def casino():
     pass
 
 

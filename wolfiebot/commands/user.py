@@ -2,35 +2,36 @@
 User Commands
 """
 import sys
-import logging
 import hikari
 import lightbulb
-# pylint: disable=no-name-in-module, import-error
 import wolfiebot
 
 
-# pylint: disable=no-name-in-module, import-error
-from wolfiebot.database.database import Database
+from wolfiebot import constants
+from wolfiebot.database.database import UserData
 
-log = logging.getLogger(__name__)
 plugin = lightbulb.Plugin("commands.user")
-database = Database()
+
 
 @plugin.command
-@lightbulb.option("user", "Select a member", type=hikari.User, required=False)
+@lightbulb.command("clear", constants.MAYA_CLEAR_MEMORY_DESC)
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+async def clear_chat(ctx: lightbulb.Context):
+    UserData(user_id=ctx.author.id).delete(name="thread_id")
+    await ctx.respond(notify(constants.MAYA_CLEAR_MEMORY))
+
+
+@plugin.command
+@lightbulb.option("user", constants.USER_SELECT_DESC, type=hikari.User, required=False)
 @lightbulb.command("avatar", "Get users avatar", aliases="pfp")
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
 async def avatar(ctx: lightbulb.Context):
-    """
-    Get the avatar URL of a user.
+    """Get the avatar URL of a user.
 
     If no user is specified, it will return the avatar URL of the invoking user.
 
     Args:
         ctx (lightbulb.Context): The context object representing the invocation.
-
-    Returns:
-        None
     """
     try:
         avatar_url = ctx.options.user.display_avatar_url
@@ -40,8 +41,9 @@ async def avatar(ctx: lightbulb.Context):
 
     await ctx.respond(f"{avatar_url}")
 
+
 @plugin.command
-@lightbulb.command("info", "Info about Wolfie")
+@lightbulb.command("info", f"Info about {wolfiebot.AI_NAME}")
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
 async def info(ctx: lightbulb.Context):
     """
@@ -52,13 +54,21 @@ async def info(ctx: lightbulb.Context):
     """
     python_version = sys.version_info
     embed = hikari.Embed(
-        title="About Wolfie",
+        title=f"About {wolfiebot.AI_NAME}",
         description=wolfiebot.__description__,
-        color=wolfiebot.DEFAULT_COLOR
+        color=wolfiebot.DEFAULT_COLOR,
     )
-    embed.add_field("Wolfie version", wolfiebot.__version__, inline=True)
-    embed.add_field("Python", f"[{python_version.major}.{python_version.minor}.{python_version.micro}](https://python.org)", inline=True)
-    embed.add_field("Hikari", f"[{hikari.__version__}](https://github.com/hikari-py/hikari)", inline=True)
+    embed.add_field(f"{wolfiebot.AI_NAME} version", wolfiebot.__version__, inline=True)
+    embed.add_field(
+        "Python",
+        f"[{python_version.major}.{python_version.minor}.{python_version.micro}](https://python.org)",
+        inline=True,
+    )
+    embed.add_field(
+        "Hikari",
+        f"[{hikari.__version__}](https://github.com/hikari-py/hikari)",
+        inline=True,
+    )
     await ctx.respond(embed=embed)
 
 
@@ -68,14 +78,12 @@ async def info(ctx: lightbulb.Context):
 @lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
 async def profile(ctx: lightbulb.Context):
     user_id = ctx.author.id
-    embed = hikari.Embed(
-        title=f"{ctx.author}'s Profile",
-        color=wolfiebot.DEFAULT_COLOR
-    )
-    embed.add_field("Level", database.read_user_data(user_id, "level"), inline=True)
-    embed.add_field("XP", database.read_user_data(user_id, "xp"), inline=True)
-    embed.add_field("Balance", database.read_user_data(user_id, "balance"))
-    embed.add_field("Casino Balance", database.read_user_data(user_id, "casino_balance"))
+    user_data = UserData(user_id=user_id)
+    embed = hikari.Embed(title=f"{ctx.author}'s Profile", color=wolfiebot.DEFAULT_COLOR)
+    embed.add_field("Level", user_data.retrieve("level"), inline=True)
+    embed.add_field("XP", user_data.retrieve("xp"), inline=True)
+    embed.add_field("Balance", user_data.retrieve("balance"))
+    embed.add_field("Casino Balance", user_data.retrieve("casino_balance"))
 
 
 def notify(message):
@@ -88,11 +96,12 @@ def notify(message):
     Returns:
         hikari.Embed: The embed object with the provided message.
     """
-    embed = hikari.Embed(title=message, description="",
-                         color=wolfiebot.DEFAULT_COLOR)
-    embed.set_author(name="Wolfie Commands",
-                     icon=plugin.bot.get_me().display_avatar_url)
+    embed = hikari.Embed(title=message, description="", color=wolfiebot.DEFAULT_COLOR)
+    embed.set_author(
+        name="Wolfie Commands", icon=plugin.bot.get_me().display_avatar_url
+    )
     return embed
+
 
 def load(bot: lightbulb.BotApp):
     """

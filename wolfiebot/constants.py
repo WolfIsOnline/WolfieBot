@@ -25,3 +25,4 @@ SLOTS_SYM_ANIMATION_ID = 1117230452802060328
 USER_SELECT_DESC = "Select the user"
 MAYA_CLEAR_MEMORY_DESC = "Clears my short-term memory."
 MAYA_CLEAR_MEMORY = "My short-term memory has been cleared"
+MAYA_GREETING_INSTR = "Introduce yourself and send a short welcome message."

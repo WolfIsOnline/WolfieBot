@@ -145,8 +145,8 @@ class AIManager:
                         tool_output.append(
                             {"tool_call_id": call["id"], "output": output}
                         )
-                        log.info(f"function_called: {function_name}")
-                        log.info(f"function_arguments: {arguments}")
+                        log.debug(f"function_called: {function_name}")
+                        log.debug(f"function_arguments: {arguments}")
                     else:
                         log.warning(f"function_called: {function_name} not found")
 

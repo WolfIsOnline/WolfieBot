@@ -22,6 +22,8 @@ SLOTS_SYM_BAR_WEIGHT = 14
 SLOTS_SYM_ANIMATION_ID = 1117230452802060328
 
 
+CMD_ERR_NOT_OWNER = "You cannot use this command."
+
 USER_SELECT_DESC = "Select the user"
 MAYA_CLEAR_MEMORY_DESC = "Clears my short-term memory."
 MAYA_CLEAR_MEMORY = "My short-term memory has been cleared"

@@ -1,16 +1,20 @@
 """Entrance"""
-import os
+
 import hikari
 import lightbulb
 import uvloop
 
-from hikari.events.base_events import EventT
 from dotenv import load_dotenv, find_dotenv
 
+import wolfiebot
 from wolfiebot.database.database import UserData
+from wolfiebot.logger import Logger
+from wolfiebot.constants import CMD_ERR_NOT_OWNER
+
+log = Logger(__name__, wolfiebot.LOG_LEVEL)
 
 load_dotenv(find_dotenv())
-DISCORD_API_KEY = os.environ.get("DISCORD_API_KEY")
+DISCORD_API_KEY = wolfiebot.DISCORD_API_KEY
 
 bot = lightbulb.BotApp(
     token=DISCORD_API_KEY,
@@ -22,17 +26,28 @@ bot = lightbulb.BotApp(
 )
 
 
+def load_extensions():
+    """Load all bot extensions"""
+    extensions = {
+        "core": ["quotes", "rooms", "logs", "welcome", "autorole", "levels", "stats"],
+        "commands": ["user", "dev", "admin", "economy", "owner", "quotes"],
+        "games": ["slots", "casino"],
+        "ai": ["chat"],
+    }
+
+    for path, extension_list in extensions.items():
+        for extension in extension_list:
+            try:
+                bot.load_extensions(f"wolfiebot.{path}.{extension}")
+            # pylint: disable=broad-exception-caught
+            except Exception as e:
+                log.critical("Failed to load extensions: %s", e)
+
+
 @bot.listen(hikari.StartedEvent)
+# pylint: disable=unused-argument
 async def start(event) -> None:
-    """
-    Event listener for the bot startup.
-
-    Args:
-        event: The event object representing the bot startup event.
-
-    Returns:
-        None
-    """
+    """Set bot status"""
     status = UserData(bot.get_me().id).retrieve("status")
     await bot.update_presence(
         status=hikari.Status.ONLINE,
@@ -43,69 +58,22 @@ async def start(event) -> None:
     )
 
 
-core = ["quotes", "rooms", "logs", "welcome", "autorole", "levels", "stats"]
-for c in core:
-    bot.load_extensions(f"wolfiebot.core.{c}")
-
-commands = ["user", "dev", "admin", "economy", "owner", "quotes"]
-for c in commands:
-    bot.load_extensions(f"wolfiebot.commands.{c}")
-
-games = ["slots", "casino"]
-for c in games:
-    bot.load_extensions(f"wolfiebot.games.{c}")
-
-ai = ["chat"]
-for c in ai:
-    bot.load_extensions(f"wolfiebot.ai.{c}")
-
-
-@bot.listen(hikari.ExceptionEvent)
-async def on_error(event: hikari.ExceptionEvent[EventT]) -> None:
-    """
-    Event listener for handling exceptions raised during event processing.
-
-    Args:
-        event: The event object representing the exception event.
-
-    Raises:
-        event.exception: The exception that occurred during event processing.
-
-    Returns:
-        None
-    """
-    raise event.exception
-
-
 @bot.listen(lightbulb.CommandErrorEvent)
 async def on_command_error(event: lightbulb.CommandErrorEvent) -> None:
-    """
-    Event listener for handling command errors.
-
-    Args:
-        event: The event object representing the command error event.
-
-    Raises:
-        lightbulb.NotOwner: If the user is not the owner of the command.
-        lightbulb.CommandIsOnCooldown: If the command is on cooldown.
-
-    Returns:
-        None
-    """
+    """Error handling"""
     exc = event.exception
 
     if isinstance(exc, lightbulb.NotOwner):
-        await event.context.respond("You do not have access to this command")
+        await event.context.respond(CMD_ERR_NOT_OWNER)
 
     if isinstance(exc, lightbulb.CommandIsOnCooldown):
         seconds = exc.retry_after
         time = await format_time(seconds)
-        await event.context.respond(f"Command is on cooldown, retry in {time}")
+        await event.context.respond(f"On cooldown, try again in {time}")
 
 
 async def format_time(seconds):
-    """
-    Formats a time duration in seconds into a human-readable string.
+    """Formats a time duration in seconds into a human-readable string.
 
     Args:
         seconds: The time duration in seconds.
@@ -134,6 +102,12 @@ async def format_time(seconds):
     return ", ".join(result)
 
 
-if __name__ == "__main__":
+def main():
+    """run bot"""
     uvloop.install()
+    load_extensions()
     bot.run()
+
+
+if __name__ == "__main__":
+    main()

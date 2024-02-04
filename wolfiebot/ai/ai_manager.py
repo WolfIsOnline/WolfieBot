@@ -1,4 +1,5 @@
 """Handles the AI assistant"""
+
 import asyncio
 import json
 from typing import List, Dict, Optional
@@ -19,7 +20,7 @@ class AIManager:
 
     REPLY_CHECK_INTERVAL = 0.5
 
-    def __init__(self, user_id: hikari.Snowflake | int):
+    def __init__(self, user_id: hikari.Snowflake | int, instruction: str = None):
         """Initializes the AIManager.
 
         Args:
@@ -33,6 +34,7 @@ class AIManager:
         self.user_data = UserData(user_id=user_id)
         self.thread_id = self.user_data.retrieve(name="thread_id")
         self.user_id = user_id
+        self.instruction = instruction
         self.function_table = {
             "_write_to_brain": self._write_to_brain,
             "_retrieve_from_brain": self._retrieve_from_brain,
@@ -116,7 +118,9 @@ class AIManager:
             run: the run object
         """
         run = self.client.beta.threads.runs.create(
-            thread_id=self.thread_id, assistant_id=wolfiebot.ASSISTANT_ID
+            thread_id=self.thread_id,
+            assistant_id=wolfiebot.ASSISTANT_ID,
+            instructions=self.instruction,
         )
 
         while run.status in ("queued", "in_progress"):

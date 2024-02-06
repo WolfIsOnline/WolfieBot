@@ -45,6 +45,14 @@ class AIManager:
         if self.thread_id is None:
             self.thread_id = self._create_thread()
 
+    def create_image(self, text: str):
+        log.debug("creating an image")
+        image = self.client.images.generate(
+            model="dall-e-3", prompt=text, n=1, size="1024x1024", quality="standard"
+        )
+        log.debug("image created")
+        return image.data[0].url
+
     async def send_message(self, text: str, attachment: Optional[str] = None) -> None:
         """
         Sends a message to the AI and retrieves the AI's reply.

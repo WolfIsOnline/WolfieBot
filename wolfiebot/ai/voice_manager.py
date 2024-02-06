@@ -17,7 +17,7 @@ class VoiceManager:
     AUDIO_PATH = f"{BASE_PATH}/reply.wav"
     IMAGE_PATH = f"{BASE_PATH}/wolfie.jpg"
     OUTPUT_PATH = f"{BASE_PATH}/reply.mp4"
-    VOICE = "maya"
+    VOICE = "odIaJLeGoie42cwJszUp"
     MODEL = "eleven_multilingual_v2"
 
     def __init__(self, text: str):

@@ -1,6 +1,8 @@
 """
 User Commands
 """
+
+import datetime
 import sys
 import hikari
 import lightbulb
@@ -9,6 +11,7 @@ import wolfiebot
 
 from wolfiebot import constants
 from wolfiebot.database.database import UserData
+from wolfiebot.ai.ai_manager import AIManager
 
 plugin = lightbulb.Plugin("commands.user")
 
@@ -84,6 +87,24 @@ async def profile(ctx: lightbulb.Context):
     embed.add_field("XP", user_data.retrieve("xp"), inline=True)
     embed.add_field("Balance", user_data.retrieve("balance"))
     embed.add_field("Casino Balance", user_data.retrieve("casino_balance"))
+
+
+@plugin.command
+@lightbulb.option("prompt", "Enter what you want to create.", type=str, required=True)
+@lightbulb.command("image", "Create an AI generated Image", auto_defer=True)
+@lightbulb.implements(lightbulb.SlashCommand, lightbulb.PrefixCommand)
+async def image(ctx: lightbulb.Context):
+    prompt = ctx.options.prompt
+    manager = AIManager(ctx.author.id)
+    ai_image = manager.create_image(prompt)
+    embed = hikari.Embed(color=wolfiebot.DEFAULT_COLOR)
+    embed.set_image(ai_image)
+    embed.set_author(
+        name=f"Requested By: {ctx.author}", icon=ctx.author.display_avatar_url
+    )
+    embed.set_footer(text=f'"{prompt}"')
+    embed.timestamp = datetime.datetime.now().astimezone()
+    await ctx.respond(embed=embed)
 
 
 def notify(message):

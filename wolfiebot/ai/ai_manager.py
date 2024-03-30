@@ -88,7 +88,7 @@ class AIManager:
             log.error("OpenAIError")
             return
 
-    async def _add_message(self, message: str) -> threads.ThreadMessage:
+    async def _add_message(self, message: str) -> threads.Message:
         """Creates a message in the conversation thread.
 
         Args:
